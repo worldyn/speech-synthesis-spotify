@@ -5,5 +5,5 @@
 # Running: exec get-data.sh {spotify-dir} 
 # Example: exec get-data.sh Spotify-Podcasts-2020/podcasts-audio-only-2TB/podcasts-audio/0/F/show_0Fvt7eaJFKwwVengB9x9IZ/7zIPUGJIClsFZUTgB4BuQ2.ogg
 
-rclone copy -P trecbox:$1 data/podcasts/
+rclone copy -P trecbox:$1 $2
 
