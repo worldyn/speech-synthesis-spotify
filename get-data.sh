@@ -22,8 +22,8 @@ do
     localpathstr="${localpatharr[*]}"
     IFS=$' '
 
-    remotepath="trecbox:Spotify-Podcasts-2020/podcasts-audio-only-2TB/podcasts-audio/$var"
-    localpath="./data/spotify-podcasts-2020/podcasts-transcripts/$localpathstr"
+    remotepath="trecbox:Spotify-Podcasts-2020/podcasts-audio-only-2TB/podcasts-audio/6/0/$var"
+    localpath="./data/spotify-podcasts-2020/podcasts-transcripts/6/0/$localpathstr"
 
     printf "\nDownloading file: $remotepath \nInto: $localpath\n\n"
 

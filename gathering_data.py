@@ -3,13 +3,16 @@ import time
 import logging
 import threading
 import time
+import matplotlib.pyplot as plt
+from scipy import signal
+from scipy.io import wavfile
 
 
-LOCAL_DATA_ROOT = './data/spotify-podcasts-2020/podcasts-transcripts'
+LOCAL_DATA_ROOT = './data/spotify-podcasts-2020/podcasts-transcripts/6/0'
 
-REMOTE_AUDIO_ROOT = './Spotify-Podcasts-2020/podcasts-audio-only-2TB/podcasts-audio'
+REMOTE_AUDIO_ROOT = './Spotify-Podcasts-2020/podcasts-audio-only-2TB/podcasts-audio/6/0'
 
-REMOTE_TRANSCRIPT_ROOT = './Spotify-Podcasts-2020/podcasts-no-audio-13GB'
+REMOTE_TRANSCRIPT_ROOT = './Spotify-Podcasts-2020/podcasts-no-audio-13GB/6/0'
 
 def log_print(filename, text):
     with open(filename, 'a') as file:
@@ -25,8 +28,8 @@ def collect_files():
             podcast_id = filename.split('.')[0]
 
             podcasts_ids.append((subdir, podcast_id))
-
-    return podcasts_ids[:4]
+    
+    return podcasts_ids
 
 
 def retrieve_batch(batch):   
@@ -76,6 +79,17 @@ def convert_batch(batch):
     log_print(log_file, '\nFiles processed: \n' + str(batch))
 
 
+def make_spectrogram(batch):
+    sample_rate, samples = wavfile.read('path-to-mono-audio-file.wav')
+    frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
+
+    plt.pcolormesh(times, frequencies, spectrogram)
+    plt.imshow(spectrogram)
+    plt.ylabel('Frequency [Hz]')
+    plt.xlabel('Time [sec]')
+    plt.show()
+
+
 def thread_function(name):
     logging.info("Thread %s: starting", name)
     time.sleep(2)
@@ -86,7 +100,9 @@ files = collect_files()
 
 
 workload = len(files)
-batch_size = 4
+batch_size = 20
+
+print('Processing ' + str(workload) + ' files with batch size of ' + str(batch_size))
 
 divisions = list(range(0, workload, batch_size))
 divisions.append(len(files))
@@ -99,6 +115,7 @@ for i in range(1,len(divisions)):
 
 # Retrieve the first batch without paralelism
 retrieve_batch(batches[0])
+
 # Retrieve the batch[i] while converting the batch[i-1]
 for batch_index in range(1,len(batches)):
 
