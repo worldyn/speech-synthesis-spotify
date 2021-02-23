@@ -25,4 +25,5 @@ if __name__ == "__main__":
     local_path = Path("./spotify-podcasts-2020/podcasts-transcripts")
     for subdir in local_path.iterdir():
         subdir.rename(subdir.name)  # move to top level
+    local_path.rmdir()
     local_path.parent.rmdir()
