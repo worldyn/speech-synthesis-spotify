@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  8 19:54:31 2020
+
+@author: szekely
+"""
+
+# 
+import os
+import numpy as np
+from matplotlib import pyplot as plt
+from skimage.measure import block_reduce
+from scipy import signal
+from scipy import io
+from scipy.io import wavfile
+
+from praatio import tgio
+
+import librosa
+import librosa.display
+
+#%% project settings
+tg_root = './train_input_mix/' #location of the TextGrid and wav files
+#output_root = './train_output_mix/'
+
+sr = 44100
+
+slicepersec = 400
+secs = 2
+n_fft = sr // 50 # standard setting 960
+hop_length = n_fft // 8
+n_mels=128
+timesteps = 40
+
+# keras parameters
+batch_size = 16 
+epochs = 40
+trainpercent = 0.90
+seed = 1570
+model_name = 'NT1_model'
+
+#%% list filenames in a folder
+def list_filenames(directory, extensions=None, add_ext=True):
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in filenames:
+            base, ext = os.path.splitext(filename)
+            joined = os.path.join(root, filename)
+            if extensions is None or ext.lower() in extensions:
+                if add_ext:
+                    yield joined
+                else:
+                    yield base
+
+
+#%% process textgrids to coloured melspectrograms
+files = list(list_filenames(tg_root, ['.wav'], add_ext=False))
+labels = ['b', 'sp', 'n', 'SIL', 'XCLD']
+
+
+#%%
+
+epi = 7
+
+fps = timesteps / 2
+
+tg = tgio.openTextgrid(tg_root + files[epi] + ".TextGrid")
+firstTier = tg.tierDict[tg.tierNameList[0]]
+tg_start = [entry[0] for entry in firstTier.entryList]
+tg_stop = [entry[1] for entry in firstTier.entryList]
+tg_label = [entry[2] for entry in firstTier.entryList]
+
+# check for breaths > 1 sec
+tg_dur = np.array(tg_stop) - np.array(tg_start)
+b_ind = [i for i, x in enumerate(tg_label) if x == 'b']
+b_dur = tg_dur[b_ind]
+b_extr = np.where(b_dur > 1)[0]
+b_extr_dur = b_dur[b_extr]
+ind_extr = np.array(b_ind)[b_extr]
+extr_times = np.array(tg_start)[ind_extr]
+
+# check for consequtive entries being the same
+doubles = np.where([i==j for i,j in zip(tg_label, tg_label[1:])])[0]
+doub_times = np.array(tg_start)[doubles]
+
+#%%
+# review labels
+frames = int(fps*tg_stop[-1])
+annot = np.zeros(frames).astype(int)
+labs = list(sorted(set(tg_label)))
+for i in range(len(labs)):
+    if labs[i] not in labels:
+        labels.append(labs[i])
+for i in range(0,len(tg_label)):
+    annot[int((tg_start[i]+1/timesteps)*fps):int((tg_stop[i]+1/timesteps)*fps)] = \
+    labels.index(tg_label[i])
+
