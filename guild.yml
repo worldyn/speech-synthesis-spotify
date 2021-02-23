@@ -1,0 +1,17 @@
+- model: spotify
+  operations:
+    download-audio:
+      main: synthesis.data.download.audio
+      flags-import: all
+    download-transcripts:
+      main: synthesis.data.download.transcripts
+      flags-import: all
+  resources:
+    transcripts:
+      path: transcripts
+      sources:
+        - operation: download-transcripts
+    audio:
+      path: audio
+      sources:
+        - operation: download-audio
