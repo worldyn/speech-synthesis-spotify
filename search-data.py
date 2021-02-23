@@ -4,7 +4,7 @@ LOCAL_PATH = "data/spotify-podcasts-2020/0" # hardcoded
 
 # path = json file
 # returns True if multiple speaker tags
-def multiple_speakers(path):
+def num_speakers(path):
     speaker_tags = {1} # set of speakers
     with open (path) as f:
         data = json.load(f)
@@ -29,9 +29,12 @@ def multiple_speakers(path):
                     speaker_tags.add(speaker) # constant time compl 
                 except:
                     break
-    return len(speaker_tags) > 1
+    return len(speaker_tags)
+
+# returns true if mult speakers
+def mult_speakers(path):
+    return len(num_speakers(path)) > 1
 
 res = multiple_speakers(LOCAL_PATH + "/show_60jwFHRBlsK6YsDOup8FWM/6hTdUKMwhZ8hB2pQe8s3ck.json")
 print(res)
 
-# non-overlapping (
