@@ -1,5 +1,9 @@
 - model: spotify
   operations:
+    zcrgrams:
+      main: synthesis.breath.zcrgrams
+      requires:
+        - audio-wav
     convert-audio:
       main: synthesis.data.convert
       requires:
