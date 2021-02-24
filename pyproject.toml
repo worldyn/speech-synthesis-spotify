@@ -6,6 +6,16 @@ authors = ["malyvsen <5940672+malyvsen@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
+guildai = "^0.7.2"
+SoundFile = "^0.10.3"
+Keras = "^2.4.3"
+opencv-python = "^4.5.1"
+tensorflow = "^2.4.1"
+scikit-image = "^0.18.1"
+praatio = "^4.2.1"
+Pillow = "^8.1.0"
+librosa = "^0.8.0"
+tqdm = "^4.57.0"
 
 [tool.poetry.dev-dependencies]
 matplotlib = "^3.3.4"

@@ -1,0 +1,29 @@
+- model: spotify
+  operations:
+    zcrgrams:
+      main: synthesis.breath.zcrgrams
+      requires:
+        - audio-wav
+    convert-audio:
+      main: synthesis.data.convert
+      requires:
+        - audio-ogg
+    download-audio:
+      main: synthesis.data.download.audio
+      flags-import: all
+    download-transcripts:
+      main: synthesis.data.download.transcripts
+      flags-import: all
+  resources:
+    transcripts:
+      path: transcripts
+      sources:
+        - operation: download-transcripts
+    audio-wav:
+      path: audio
+      sources:
+        - operation: convert-audio
+    audio-ogg:
+      path: audio
+      sources:
+        - operation: download-audio
