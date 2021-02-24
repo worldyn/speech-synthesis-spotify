@@ -1,5 +1,9 @@
 - model: spotify
   operations:
+    convert-audio:
+      main: synthesis.data.convert
+      requires:
+        - audio-ogg
     download-audio:
       main: synthesis.data.download.audio
       flags-import: all
@@ -11,7 +15,11 @@
       path: transcripts
       sources:
         - operation: download-transcripts
-    audio:
+    audio-wav:
+      path: audio
+      sources:
+        - operation: convert-audio
+    audio-ogg:
       path: audio
       sources:
         - operation: download-audio
