@@ -135,3 +135,7 @@ dmypy.json
 .pyre/
 
 .vscode/
+
+
+# Data
+/data
