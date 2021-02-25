@@ -52,7 +52,7 @@ def main():
     segments = segment_interval(data_wav_norm, fs_wav, 1)
     data_no_silence = remove_silent_segments(segments)
 
-    write_wav("nosilence.wav",data_no_silence,fs_wav)
+    write_wav("./testdata/nosilence.wav",data_no_silence,fs_wav)
 
     plt.plot(data_wav_norm)
     plt.show()
