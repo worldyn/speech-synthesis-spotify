@@ -1,3 +1,6 @@
+# vim stuff
+*.swp
+
 # dont save audio data to git
 *.ogg
 *.wav
