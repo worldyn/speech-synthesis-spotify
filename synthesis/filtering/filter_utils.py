@@ -55,6 +55,7 @@ def plot_sound(path):
     plt.show()
 
 class Sound:
+    # todo extract parts
     def __init__(self, path):
         self.data = parselmouth.Sound(path)
         self.spectrogram = self.data.to_spectrogram()
@@ -63,6 +64,12 @@ class Sound:
         self.pitch = self.pitch_obj.selected_array['frequency']
         # pre-emphasize
         self.data_emp = self.data.copy().pre_emphasize()
+
+    def pitch_avg(self):
+        return np.average(self.pitch)
+
+    def intensity_avg(self):
+        return np.average(self.intensity)
 
     def draw_spectrogram(self, dynamic_range=70):
         X, Y = self.spectrogram.x_grid(), self.spectrogram.y_grid()
@@ -116,7 +123,7 @@ def main():
     #plt.plot(data_wav_norm)
     snd = Sound("./testdata/smaller7tmono.wav")
     #snd.draw_intensity()
-    snd.draw_spectrogram()
+    #snd.draw_spectrogram()
     snd.draw_pitch()
 
     plt.show()
