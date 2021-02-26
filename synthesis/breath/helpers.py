@@ -83,19 +83,6 @@ def zcr_rate(wav_in, step=240, sz=960):
     return zrate
 
 
-#%% list filenames in a folder
-def list_filenames(directory, extensions=None, add_ext=True):
-    for root, dirnames, filenames in os.walk(directory):
-        for filename in filenames:
-            base, ext = os.path.splitext(filename)
-            joined = os.path.join(root, filename)
-            if extensions is None or ext.lower() in extensions:
-                if add_ext:
-                    yield joined
-                else:
-                    yield base
-
-
 #%% vectorised implementation
 def colorvec(
     spec,
