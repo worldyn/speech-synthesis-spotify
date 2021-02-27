@@ -1,0 +1,7 @@
+{
+    "f0_interval": 0.8,
+    "pitch_interval": 0.5,
+    "sr_interval": 0.2,
+    "energy_interval": 0.5,
+    "intensity_interval": 0.3
+}

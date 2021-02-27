@@ -1,0 +1,51 @@
+Filtering Audio
+
+
+-- Input
+	
+	Options:
+		1. Several .wav files (path)
+		2. Timestamps in which the audio should be segmented
+
+-- Segment file:
+Segment object for each segment
+
+	Input: Path + timesteps
+	
+	Attributes: 
+		- Path
+		- (Beginning, end)
+		- Wave
+
+	Methods: 
+		- Pitch: list
+		- Avg Pitch: float
+		- Energy: float
+		- Intensity: list
+		- Avg Intensity: float
+		- SpeechRate: float
+
+		(?) Has Noise: bool
+		(?) Amount of noise:
+		(?) Has Music: bool
+		(?) Amount of music:
+
+
+-- Filtering file:
+Define constant "valid" intervals for each feature
+Ex: 80% for Avg Pith, 50% for Energy
+
+
+Compute the avg value of each feature for:
+- Episode
+
+	If Sound.feature out of the interval [Avg feature - %, Avg feature + %]:
+		Discard
+	Else
+		Keep the segment:
+			Store a list of tuples (init timestamp, final timestamp)
+
+-- Output 
+
+	List of Segments representing valid segments
+
