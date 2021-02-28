@@ -7,6 +7,7 @@ import plotly
 import numpy as np
 import matplotlib.pyplot as plt
 import IPython
+from IPython.display import Audio
 import parselmouth
 from parselmouth.praat import call
 
@@ -24,6 +25,9 @@ class Segment:
         self.pitch = self.pitch_obj.selected_array['frequency']
         # pre-emphasize
         self.snd_emp = self.snd.copy().pre_emphasize()
+
+    #def write(self,path):
+    #   wavfile.write(path, self.snd.sampling_frequency,self.snd.values) 
 
     def pitch_avg(self):
         return np.average(self.pitch)

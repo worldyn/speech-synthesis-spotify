@@ -18,6 +18,7 @@ def main():
     seg = Segment(testpath, 1, 3)
     print("Amplitude")
     seg.draw_data()
+    seg.write("test.wav")
     plt.show()
 main()
 
