@@ -16,9 +16,11 @@ def main():
     testpath = './testdata/smaller7tmono.wav'
     fs_wav, data_wav = get_wav(testpath)
     seg = Segment(testpath, 1, 3)
-    print("Amplitude")
-    seg.draw_data()
-    seg.write("test.wav")
-    plt.show()
+    #print("Amplitude")
+    #seg.draw_data()
+    #seg.write("test.wav")
+    #plt.show()
+    sr = seg.get_speech_rate()
+    print("SPEECH RATE:" , sr)
 main()
 

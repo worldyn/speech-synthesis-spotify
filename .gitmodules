@@ -1,0 +1,6 @@
+[submodule "synthesis/filtering/myprosody"]
+	path = synthesis/filtering/myprosody
+	url = https://github.com/Shahabks/myprosody.git
+[submodule "synthesis/filtering/pyAcoustics"]
+	path = synthesis/filtering/pyAcoustics
+	url = https://github.com/timmahrt/pyAcoustics.git
