@@ -1,9 +1,9 @@
-import ffmpeg
+# import ffmpeg
 from pydub import AudioSegment
 from scipy.io import wavfile
-from plotly.offline import init_notebook_mode
-import plotly.graph_objs as go
-import plotly
+#from plotly.offline import init_notebook_mode
+#import plotly.graph_objs as go
+#import plotly
 import numpy as np
 import matplotlib.pyplot as plt
 import IPython
@@ -36,7 +36,7 @@ class Segment:
         return np.average(self.intensity)
     
     def get_speech_rate(self):
-        return
+        return 1
 
     def draw_data(self):
         plt.plot(self.data)
