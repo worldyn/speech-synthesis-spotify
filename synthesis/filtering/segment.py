@@ -28,18 +28,22 @@ class Segment:
         self.data = self.snd.values.T # amplitudes
         self.start_time = start_time
         self.end_time = end_time
-        self.spectrogram = self.snd.to_spectrogram()
+        #self.spectrogram = self.snd.to_spectrogram()
         self.intensity = self.snd.to_intensity()
         self.pitch_obj = self.snd.to_pitch()
         self.pitch = self.pitch_obj.selected_array['frequency']
+        self.energy = self.snd.get_energy()
         # pre-emphasize
-        self.snd_emp = self.snd.copy().pre_emphasize()
+        #self.snd_emp = self.snd.copy().pre_emphasize()
 
     #def write(self,path):
     #   wavfile.write(path, self.snd.sampling_frequency,self.snd.values) 
 
     def pitch_avg(self):
         return np.average(self.pitch)
+
+    def get_energy(self):
+        return self.energy
 
     def intensity_avg(self):
         return np.average(self.intensity)

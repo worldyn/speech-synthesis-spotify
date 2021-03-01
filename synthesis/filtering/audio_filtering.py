@@ -86,13 +86,13 @@ def compute_stats(show_segments):
             ep_avg_pitch += pitch
             show_avg_pitch += pitch
             # Speech Rate
-            sr = segment.get_speech_rate()
-            ep_avg_sr += sr
-            show_avg_sr += sr
+            #sr = segment.get_speech_rate()
+            #ep_avg_sr += sr
+            #show_avg_sr += sr
             # Energy
-            #energy = segment.
-            #ep_avg_energy += energy
-            #show_avg_energy += energy
+            energy = segment.get_energy()
+            ep_avg_energy += energy
+            show_avg_energy += energy
             # Intensity 
             intensity = segment.intensity_avg()
             ep_avg_intensity += intensity
@@ -132,8 +132,8 @@ def inside_intervals(segment, stats, intervals):
 
     # F0
     ''''
-    lower_bound = stats['avg_f0'] - stats['avg_f0']*intervals['f0_interval']
-    upper_bound = stats['avg_f0'] + stats['avg_f0']*intervals['f0_interval']
+    lower_bound = stats['avg_f0'] - stats['avg_f0']*intervals['f0_interval']/2
+    upper_bound = stats['avg_f0'] + stats['avg_f0']*intervals['f0_interval']/2
     
     f0 = segment.
     if f0 < lower_bound or f0 > upper_bound:
@@ -141,34 +141,34 @@ def inside_intervals(segment, stats, intervals):
     '''
 
     # Pitch
-    lower_bound = stats['avg_pitch'] - stats['avg_pitch']*intervals['pitch_interval']
-    upper_bound = stats['avg_pitch'] + stats['avg_pitch']*intervals['pitch_interval']
+    lower_bound = stats['avg_pitch'] - stats['avg_pitch']*intervals['pitch_interval']/2
+    upper_bound = stats['avg_pitch'] + stats['avg_pitch']*intervals['pitch_interval']/2
     
     pitch = segment.pitch_avg()
     if pitch < lower_bound or pitch > upper_bound:
         return False 
 
     # Speech Rate
-    lower_bound = stats['avg_sr'] - stats['avg_sr']*intervals['sr_interval']
-    upper_bound = stats['avg_sr'] + stats['avg_sr']*intervals['sr_interval']
+    '''
+    lower_bound = stats['avg_sr'] - stats['avg_sr']*intervals['sr_interval']/2
+    upper_bound = stats['avg_sr'] + stats['avg_sr']*intervals['sr_interval']/2
     
     sr = segment.get_speech_rate()
     if sr < lower_bound or sr > upper_bound:
-        return False 
-
-    # Energy
-    ''''
-    lower_bound = stats['avg_energy'] - stats['avg_energy']*intervals['energy_interval']
-    upper_bound = stats['avg_energy'] + stats['avg_energy']*intervals['energy_interval']
-    
-    energy = segment.
-    if energy < lower_bound or energy > upper_bound:
-        return False 
+        return False
     '''
 
+    # Energy
+    lower_bound = stats['avg_energy'] - stats['avg_energy']*intervals['energy_interval']/2
+    upper_bound = stats['avg_energy'] + stats['avg_energy']*intervals['energy_interval']/2
+    
+    energy = segment.get_energy()
+    if energy < lower_bound or energy > upper_bound:
+        return False 
+
     # Intensity
-    lower_bound = stats['avg_intensity'] - stats['avg_intensity']*intervals['intensity_interval']
-    upper_bound = stats['avg_intensity'] + stats['avg_intensity']*intervals['intensity_interval']
+    lower_bound = stats['avg_intensity'] - stats['avg_intensity']*intervals['intensity_interval']/2
+    upper_bound = stats['avg_intensity'] + stats['avg_intensity']*intervals['intensity_interval']/2
     
     intensity = segment.intensity_avg()
     if intensity < lower_bound or intensity > upper_bound:
@@ -225,7 +225,7 @@ print(timestamps)
 
 assert len(paths) == len(timestamps)
 
-# Creating a list of Segments
+# Creating a list of Segment objects
 show_segments = []
 for i in range(len(paths)):
     ep_path = paths[i]
