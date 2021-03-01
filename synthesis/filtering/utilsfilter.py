@@ -10,13 +10,17 @@ import IPython
 import parselmouth
 from parselmouth.praat import call
 
+# Code inspired from 
+# https://hackernoon.com/audio-handling-basics-how-to-process-audio-files-using-python-cli-jo283u3y
+
 # retuns sample rate and wav data
 def get_wav(path):
     return wavfile.read(path)
 
 # start and end in seconds
-def trim(wavdata, start, end, sampling_freq):
-    return wavdata[start * fs_wav: end * fs_wav], \
+# returns new data and new time length
+def trim(wavdata, start, end, fs_wav):
+    return wavdata[int(start * fs_wav): int(end * fs_wav)], \
             np.arange(0, len(wavdata)) / fs_wav 
 
 # segment into equal sized segments

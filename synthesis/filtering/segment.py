@@ -15,17 +15,19 @@ import myprosody as mysp
 import os
 from os.path import join
 import pyacoustics
+from utilsfilter import *
 from pyacoustics.signals import audio_scripts
 from pyacoustics.speech_rate import uwe_sr
 from pyacoustics.utilities import utils
 from pyacoustics.utilities import my_math
 
+# Uses the parselmouth library
+# https://parselmouth.readthedocs.io
+
 class Segment:
     # todo extract parts
-    def __init__(self, path, start_time, end_time):
+    def __init__(self, path, start_time, end_time, samp_freq):
         self.path = path
-        self.snd = parselmouth.Sound(path)
-        self.data = self.snd.values.T # amplitudes
         self.start_time = start_time
         self.end_time = end_time
         #self.spectrogram = self.snd.to_spectrogram()
@@ -36,8 +38,8 @@ class Segment:
         # pre-emphasize
         #self.snd_emp = self.snd.copy().pre_emphasize()
 
-    #def write(self,path):
-    #   wavfile.write(path, self.snd.sampling_frequency,self.snd.values) 
+    def write(self,path):
+       wavfile.write(path, self.samp_freq, self.data) 
 
     def pitch_avg(self):
         return np.average(self.pitch)
@@ -50,6 +52,8 @@ class Segment:
     
     def get_speech_rate(self):
         #_rootDir = "/Users/tmahrt/Dropbox/workspace/pyAcoustics/examples/files"
+        return 1
+        '''
         _rootDir = "./"
         _wavPath = _rootDir
         _syllableNucleiPath = join(_rootDir, "syllableNuclei_portions")
@@ -61,6 +65,7 @@ class Segment:
             _wavPath, _syllableNucleiPath, 
             _matlabEXE, _matlabScriptsPath
         )
+        '''
 
     def draw_data(self):
         plt.plot(self.data)
