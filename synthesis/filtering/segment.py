@@ -31,6 +31,7 @@ class Segment:
         self.start_time = start_time
         self.end_time = end_time
         #self.spectrogram = self.snd.to_spectrogram()
+        self.snd = parselmouth.Sound(path)
         self.intensity = self.snd.to_intensity()
         self.pitch_obj = self.snd.to_pitch()
         self.pitch = self.pitch_obj.selected_array['frequency']
