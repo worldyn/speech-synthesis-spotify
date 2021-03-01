@@ -23,9 +23,6 @@ from .helpers import (
 )
 
 
-show_id = "0L0j6X6cf3DO1Bs0D0K4Ch"
-
-
 def process_file(path: Path):
     sample_rate = 44100
 
@@ -70,6 +67,5 @@ def process_file(path: Path):
 
 
 if __name__ == "__main__":
-    show_path = Path(f"./audio/show_{show_id}")
-    for file_path in tqdm(show_path.iterdir()):
-        process_file(show_path)
+    for file_path in tqdm(Path(f"./audio").iterdir()):
+        process_file(file_path)
