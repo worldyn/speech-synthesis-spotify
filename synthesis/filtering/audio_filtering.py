@@ -61,7 +61,12 @@ def compute_stats(show_segments):
         'avg_pitch': [],
         'avg_sr': [],
         'avg_energy': [],
-        'avg_intensity': []
+        'avg_intensity': [],
+        'std_f0': [],
+        'std_pitch': [],
+        'std_sr': [],
+        'std_energy': [],
+        'std_intensity': []
     }
 
     show_stats = {
@@ -69,62 +74,72 @@ def compute_stats(show_segments):
         'avg_pitch': 0,
         'avg_sr': 0,
         'avg_energy': 0,
-        'avg_intensity': 0
+        'avg_intensity': 0,
+        'std_f0': 0,
+        'std_pitch': 0,
+        'std_sr': 0,
+        'std_energy': 0,
+        'std_intensity': 0
     }
 
-    n_total_segments = 0
-    show_avg_f0 = show_avg_pitch = show_avg_sr = show_avg_energy = show_avg_intensity = 0
+    show_avg_f0 = []
+    show_avg_pitch = []
+    show_avg_sr = []
+    show_avg_energy = []
+    show_avg_intensity = []
     for ep_segments in show_segments:
-        ep_avg_f0 = ep_avg_pitch = ep_avg_sr = ep_avg_energy = ep_avg_intensity = 0
+        ep_avg_f0 = []
+        ep_avg_pitch = []
+        ep_avg_sr = []
+        ep_avg_energy = []
+        ep_avg_intensity = []
         for segment in ep_segments:
             # F0
             #f0 = segment.
-            #ep_avg_f0 += f0
-            #show_avg_f0 += f0 
+            #ep_avg_f0.append(f0)
+            #show_avg_f0.append(f0 )
             # Pitch
             pitch = segment.pitch_avg()
-            ep_avg_pitch += pitch
-            show_avg_pitch += pitch
+            ep_avg_pitch.append(pitch)
+            show_avg_pitch.append(pitch)
             # Speech Rate
             #sr = segment.get_speech_rate()
-            #ep_avg_sr += sr
-            #show_avg_sr += sr
+            #ep_avg_sr.append(sr)
+            #show_avg_sr.append(sr)
             # Energy
             energy = segment.get_energy()
-            ep_avg_energy += energy
-            show_avg_energy += energy
+            ep_avg_energy.append(energy)
+            show_avg_energy.append(energy)
             # Intensity 
             intensity = segment.intensity_avg()
-            ep_avg_intensity += intensity
-            show_avg_intensity += intensity
-
-            n_total_segments += 1
-
-        n_ep_segments = len(ep_segments)
-        ep_avg_f0 /= n_ep_segments
-        ep_avg_pitch /= n_ep_segments
-        ep_avg_sr /= n_ep_segments
-        ep_avg_energy /= n_ep_segments
-        ep_avg_intensity /= n_ep_segments
-
-        ep_stats['avg_f0'].append(ep_avg_f0)
-        ep_stats['avg_pitch'].append(ep_avg_pitch)
-        ep_stats['avg_sr'].append(ep_avg_sr)
-        ep_stats['avg_energy'].append(ep_avg_energy)
-        ep_stats['avg_intensity'].append(ep_avg_intensity)
+            ep_avg_intensity.append(intensity)
+            show_avg_intensity.append(intensity)
 
 
-    show_avg_f0 /= n_total_segments
-    show_avg_pitch /= n_total_segments
-    show_avg_sr /= n_total_segments
-    show_avg_energy /= n_total_segments
-    show_avg_intensity /= n_total_segments
+        ep_stats['avg_f0'].append(np.mean(ep_avg_f0))
+        ep_stats['avg_pitch'].append(np.mean(ep_avg_pitch))
+        ep_stats['avg_sr'].append(np.mean(ep_avg_sr))
+        ep_stats['avg_energy'].append(np.mean(ep_avg_energy))
+        ep_stats['avg_intensity'].append(np.mean(ep_avg_intensity))
 
-    show_stats['avg_f0'] = show_avg_f0
-    show_stats['avg_pitch'] = show_avg_pitch
-    show_stats['avg_sr'] = show_avg_sr
-    show_stats['avg_energy'] = show_avg_energy
-    show_stats['avg_intensity'] = show_avg_intensity
+        ep_stats['std_f0'].append(np.std(ep_avg_f0))
+        ep_stats['std_pitch'].append(np.std(ep_avg_pitch))
+        ep_stats['std_sr'].append(np.std(ep_avg_sr))
+        ep_stats['std_energy'].append(np.std(ep_avg_energy))
+        ep_stats['std_intensity'].append(np.std(ep_avg_intensity))
+
+
+    show_stats['avg_f0'] = np.mean(show_avg_f0)
+    show_stats['avg_pitch'] = np.mean(show_avg_pitch)
+    show_stats['avg_sr'] = np.mean(show_avg_sr)
+    show_stats['avg_energy'] = np.mean(show_avg_energy)
+    show_stats['avg_intensity'] = np.mean(show_avg_intensity)
+    
+    show_stats['std_f0'] = np.std(show_avg_f0)
+    show_stats['std_pitch'] = np.std(show_avg_pitch)
+    show_stats['std_sr'] = np.std(show_avg_sr)
+    show_stats['std_energy'] = np.std(show_avg_energy)
+    show_stats['std_intensity'] = np.std(show_avg_intensity)
 
     return show_stats, ep_stats
 
@@ -132,8 +147,8 @@ def inside_intervals(segment, stats, intervals):
 
     # F0
     ''''
-    lower_bound = stats['avg_f0'] - stats['avg_f0']*intervals['f0_interval']/2
-    upper_bound = stats['avg_f0'] + stats['avg_f0']*intervals['f0_interval']/2
+    lower_bound = stats['avg_f0'] - stats['std_f0']*intervals['f0_interval']/2
+    upper_bound = stats['avg_f0'] + stats['std_f0']*intervals['f0_interval']/2
     
     f0 = segment.
     if f0 < lower_bound or f0 > upper_bound:
@@ -141,8 +156,8 @@ def inside_intervals(segment, stats, intervals):
     '''
 
     # Pitch
-    lower_bound = stats['avg_pitch'] - stats['avg_pitch']*intervals['pitch_interval']/2
-    upper_bound = stats['avg_pitch'] + stats['avg_pitch']*intervals['pitch_interval']/2
+    lower_bound = stats['avg_pitch'] - stats['std_pitch']*intervals['pitch_interval']/2
+    upper_bound = stats['avg_pitch'] + stats['std_pitch']*intervals['pitch_interval']/2
     
     pitch = segment.pitch_avg()
     if pitch < lower_bound or pitch > upper_bound:
@@ -150,8 +165,8 @@ def inside_intervals(segment, stats, intervals):
 
     # Speech Rate
     '''
-    lower_bound = stats['avg_sr'] - stats['avg_sr']*intervals['sr_interval']/2
-    upper_bound = stats['avg_sr'] + stats['avg_sr']*intervals['sr_interval']/2
+    lower_bound = stats['avg_sr'] - stats['std_sr']*intervals['sr_interval']/2
+    upper_bound = stats['avg_sr'] + stats['std_sr']*intervals['sr_interval']/2
     
     sr = segment.get_speech_rate()
     if sr < lower_bound or sr > upper_bound:
@@ -159,16 +174,16 @@ def inside_intervals(segment, stats, intervals):
     '''
 
     # Energy
-    lower_bound = stats['avg_energy'] - stats['avg_energy']*intervals['energy_interval']/2
-    upper_bound = stats['avg_energy'] + stats['avg_energy']*intervals['energy_interval']/2
+    lower_bound = stats['avg_energy'] - stats['std_energy']*intervals['energy_interval']/2
+    upper_bound = stats['avg_energy'] + stats['std_energy']*intervals['energy_interval']/2
     
     energy = segment.get_energy()
     if energy < lower_bound or energy > upper_bound:
         return False 
 
     # Intensity
-    lower_bound = stats['avg_intensity'] - stats['avg_intensity']*intervals['intensity_interval']/2
-    upper_bound = stats['avg_intensity'] + stats['avg_intensity']*intervals['intensity_interval']/2
+    lower_bound = stats['avg_intensity'] - stats['std_intensity']*intervals['intensity_interval']/2
+    upper_bound = stats['avg_intensity'] + stats['std_intensity']*intervals['intensity_interval']/2
     
     intensity = segment.intensity_avg()
     if intensity < lower_bound or intensity > upper_bound:
@@ -255,7 +270,13 @@ for ep_index, ep_segments in enumerate(show_segments):
             'avg_pitch': ep_stats['avg_pitch'][ep_index],
             'avg_sr': ep_stats['avg_sr'][ep_index],
             'avg_energy': ep_stats['avg_energy'][ep_index],
-            'avg_intensity': ep_stats['avg_intensity'][ep_index]
+            'avg_intensity': ep_stats['avg_intensity'][ep_index],
+            'std_f0': ep_stats['std_f0'][ep_index],
+            'std_pitch': ep_stats['std_pitch'][ep_index],
+            'std_sr': ep_stats['std_sr'][ep_index],
+            'std_energy': ep_stats['std_energy'][ep_index],
+            'std_intensity': ep_stats['std_intensity'][ep_index]
+            
         }
 
         if inside_intervals(segment=segment, stats=this_ep_stats, intervals=intervals):

@@ -4,25 +4,26 @@ import matplotlib.pyplot as plt
 import parselmouth
 import pickle
 from utilsfilter import *
-from g2p_en import G2p
+#from g2p_en import G2p
 
 # Uses the parselmouth library for audio data usage
 # https://parselmouth.readthedocs.io
 
 class Segment:
     # todo extract parts
-    def __init__(self, path, start_time, end_time, samp_freq, text):
+    def __init__(self, path, start_time, end_time):
         self.path = path
         self.start_time = start_time
         self.end_time = end_time
-        self.time = end_time - start_time
+        self.snd = parselmouth.Sound(path)
+        self.data = self.snd.values.T # amplitudes
         #self.spectrogram = self.snd.to_spectrogram()
         self.snd = parselmouth.Sound(path)
         self.intensity = self.snd.to_intensity()
         self.pitch_obj = self.snd.to_pitch()
         self.pitch = self.pitch_obj.selected_array['frequency']
         self.energy = self.snd.get_energy()
-        self.text = text
+        #self.text = text
         # pre-emphasize
         #self.snd_emp = self.snd.copy().pre_emphasize()
 
@@ -39,13 +40,22 @@ class Segment:
         return np.average(self.intensity)
     
     def get_speech_rate(self):
-        # Uses g2pE for phoneme conversion
-        # https://github.com/Kyubyong/g2p
-        g2p = G2p()
-        phonemes = g2p(self.text)
-        phonemes = [s for s in phonemes if s.strip()]
-        return len(phonemes) / self.time
-        
+        #_rootDir = "/Users/tmahrt/Dropbox/workspace/pyAcoustics/examples/files"
+        return 1
+        '''
+        _rootDir = "./"
+        _wavPath = _rootDir
+        _syllableNucleiPath = join(_rootDir, "syllableNuclei_portions")
+        _matlabEXE = "/Applications/MATLAB_R2014a.app/bin/matlab"
+        _matlabScriptsPath = ("pyAcoustics/"
+                              "matlabScripts")
+
+        getSpeechRateForIntervals(
+            _wavPath, _syllableNucleiPath, 
+            _matlabEXE, _matlabScriptsPath
+        )
+        '''
+
     def draw_data(self):
         plt.plot(self.data)
 
@@ -80,4 +90,3 @@ class Segment:
         plt.grid(False)
         plt.ylim(0, self.pitch_obj.ceiling)
         plt.ylabel("fundamental frequency [Hz]")
-
