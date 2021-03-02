@@ -17,7 +17,10 @@ Pillow = "^8.1.0"
 librosa = "^0.8.0"
 tqdm = "^4.57.0"
 matplotlib = "^3.3.4"
-numpy = "^1.20.1"
+numpy = "^1.19.2"
+scipy = "^1.6.1"
+parselmouth = "^1.1.1"
+g2p-en = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 matplotlib = "^3.3.4"

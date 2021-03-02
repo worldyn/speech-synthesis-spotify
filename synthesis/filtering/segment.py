@@ -2,9 +2,8 @@ from scipy.io import wavfile
 import numpy as np
 import matplotlib.pyplot as plt
 import parselmouth
-import pickle
 from utilsfilter import *
-#from g2p_en import G2p
+from g2p_en import G2p
 
 # Uses the parselmouth library for audio data usage
 # https://parselmouth.readthedocs.io
