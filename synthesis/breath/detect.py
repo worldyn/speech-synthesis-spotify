@@ -24,29 +24,19 @@ def process_episode(model, episode_path: Path):
 
     image = cv2.imread(files[0])
     image_height, image_width, num_channels = image.shape
-
-    # take the spectograms apart into slices to be fed to the model
     slice_width = image_width // num_slices
-    model_in = np.empty(
-        (
-            len(files),
-            num_slices,
-            image_height,
-            slice_width,
-            num_channels,
-        )
-    )
 
+    out_pred = np.empty([len(files), num_slices, 3])  # number of classes
     for file_idx, file in enumerate(files):
         image = cv2.imread(file)
-        for slice_idx in range(num_slices):
-            model_in[file_idx, slice_idx] = image[
-                :, slice_idx * slice_width : (slice_idx + 1) * slice_width
-            ]
-
-    # make predictions
-    out_pred = model.predict(model_in, batch_size=1)
-    del model_in
+        batch = np.expand_dims(
+            [
+                image[:, slice_idx * slice_width : (slice_idx + 1) * slice_width]
+                for slice_idx in range(num_slices)
+            ],
+            axis=0,
+        )
+        out_pred[file_idx] = model.predict_on_batch(batch)
 
     # merge prediction into one time series
     flat_pred = out_pred.reshape(np.prod(out_pred.shape[:2]), out_pred.shape[2])
