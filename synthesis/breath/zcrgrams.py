@@ -50,7 +50,6 @@ def process_file(path: Path):
     col_in = [(melspecs[r], zrates[r]) for r in range(num_splits)]
     colspecs = pool.map(colorvec2, col_in)
     x_complete = np.asarray(colspecs).astype(np.float32)
-    print(np.shape(x_complete))
 
     # save the zcr-coloured melspectrograms
     zcr_path = Path(path.stem)
@@ -67,5 +66,5 @@ def process_file(path: Path):
 
 
 if __name__ == "__main__":
-    for file_path in tqdm(Path(f"./audio").iterdir()):
+    for file_path in tqdm(list(Path(f"./audio").iterdir())):
         process_file(file_path)
