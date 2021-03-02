@@ -1,6 +1,6 @@
+import subprocess
 from pathlib import Path
 from glob import glob
-import soundfile as sf
 from tqdm.auto import tqdm
 
 
@@ -9,9 +9,12 @@ if __name__ == "__main__":
     output_dir = Path("./")
     input_paths = glob((input_dir / "**/*.ogg").as_posix(), recursive=True)
     for input_path in tqdm(input_paths):
-        data, samplerate = sf.read(input_path)
-        output_path = output_dir / Path(input_path).relative_to(input_dir).with_suffix(
-            ".wav"
+        subprocess.run(
+            args=[
+                "ffmpeg",
+                "-i",
+                input_path,
+                Path(input_path).relative_to(input_dir).with_suffix(".wav"),
+            ],
+            capture_output=True,
         )
-        output_path.parent.mkdir(exist_ok=True)
-        sf.write(output_path, data, samplerate)
