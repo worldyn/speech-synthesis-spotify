@@ -48,30 +48,30 @@ def process_file(path: Path):
     zrates = manydo.map(
         function=zcr_rate, iterable=ins, num_jobs=num_threads, loading_bar=False
     )
-    x_complete = np.asarray(
-        manydo.map(
-            function=colorvec2,
-            iterable=zip(melspecs, zrates),
-            num_jobs=num_threads,
-            loading_bar=False,
-        ),
-        dtype=np.float32,
-    )
 
     # save the zcr-coloured melspectrograms
     zcr_path = Path(path.stem)
     zcr_path.mkdir(parents=True)
 
-    for n in range(0, np.shape(x_complete)[0]):
-        imout = np.floor(255 * x_complete[n, ::-1, :, :])
+    def save_zcrgram(args):
+        x = np.asarray(colorvec2(args[1]), dtype=np.float32)
+        imout = np.floor(255 * x[::-1, :, :])
         imout = imout.astype(np.uint8)
         img = Image.fromarray(imout, "RGB")
         img.save(
-            zcr_path / ("zcr" + f"{n:04d}" + ".png"),
+            zcr_path / ("zcr" + f"{args[0]:04d}" + ".png"),
             "PNG",
         )
 
+    manydo.map(
+        function=save_zcrgram,
+        iterable=enumerate(zip(melspecs, zrates)),
+        num_jobs=num_threads,
+        loading_bar=False,
+    )
+
 
 if __name__ == "__main__":
-    for file_path in tqdm(sorted(Path(f"./audio").iterdir())):
+    file_paths = sorted([path for path in Path(f"./audio").iterdir() if path.is_file()])
+    for file_path in tqdm(file_paths):
         process_file(file_path)
