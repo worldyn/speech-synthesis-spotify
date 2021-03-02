@@ -16,14 +16,13 @@ praatio = "^4.2.1"
 Pillow = "^8.1.0"
 librosa = "^0.8.0"
 tqdm = "^4.57.0"
-matplotlib = "^3.3.4"
 numpy = "^1.19.2"
 scipy = "^1.6.1"
-parselmouth = "^1.1.1"
 g2p-en = "^2.1.0"
+matplotlib = "3.2"
+praat-parselmouth = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
-matplotlib = "^3.3.4"
 scipy = "^1.6.1"
 black = {version = "^20.8b1", allow-prereleases = true}
 
