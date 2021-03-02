@@ -1,10 +1,6 @@
-import os
 from pathlib import Path
-from functools import partial
 
 import numpy as np
-from multiprocessing import Pool
-
 from scipy import signal
 from scipy import io
 from scipy.io import wavfile
@@ -12,6 +8,7 @@ from scipy.io import wavfile
 import soundfile
 from PIL import Image
 
+import manydo
 from tqdm.auto import tqdm
 
 from .helpers import (
@@ -21,6 +18,9 @@ from .helpers import (
     colorvec,
     colorvec2,
 )
+
+
+num_threads = 8
 
 
 def process_file(path: Path):
@@ -39,17 +39,24 @@ def process_file(path: Path):
     )
 
     # create mel-spectrogram
-    pool = Pool()
     ins = [wav_in[r, :] for r in range(num_splits)]
-
-    melspecs = pool.map(create_melspec, ins)
+    melspecs = manydo.map(
+        function=create_melspec, iterable=ins, num_jobs=num_threads, loading_bar=False
+    )
 
     # use zero crossing rate to create zcr-colored melspectrograms
-    zrates = pool.map(zcr_rate, ins)
-    func = partial(colorvec, melspecs, zrates)
-    col_in = [(melspecs[r], zrates[r]) for r in range(num_splits)]
-    colspecs = pool.map(colorvec2, col_in)
-    x_complete = np.asarray(colspecs).astype(np.float32)
+    zrates = manydo.map(
+        function=zcr_rate, iterable=ins, num_jobs=num_threads, loading_bar=False
+    )
+    x_complete = np.asarray(
+        manydo.map(
+            function=colorvec2,
+            iterable=zip(melspecs, zrates),
+            num_jobs=num_threads,
+            loading_bar=False,
+        ),
+        dtype=np.float32,
+    )
 
     # save the zcr-coloured melspectrograms
     zcr_path = Path(path.stem)
@@ -66,5 +73,5 @@ def process_file(path: Path):
 
 
 if __name__ == "__main__":
-    for file_path in tqdm(list(Path(f"./audio").iterdir())):
+    for file_path in tqdm(sorted(Path(f"./audio").iterdir())):
         process_file(file_path)
