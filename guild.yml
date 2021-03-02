@@ -1,4 +1,7 @@
 - model: spotify
+  sourcecode:
+    - "*.py"
+    - "*.h5"
   operations:
     detect-breath:
       main: synthesis.breath.detect
