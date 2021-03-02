@@ -16,6 +16,8 @@ praatio = "^4.2.1"
 Pillow = "^8.1.0"
 librosa = "^0.8.0"
 tqdm = "^4.57.0"
+matplotlib = "^3.3.4"
+numpy = "^1.20.1"
 
 [tool.poetry.dev-dependencies]
 matplotlib = "^3.3.4"
