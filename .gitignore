@@ -1,7 +1,9 @@
 # vim stuff
 *.swp
 
-/synthesis/tacotron2/filelists/ljs_dataset_folder
+./synthesis/tacotron2/filelists/ljs_dataset_folder
+./synthesis/tacotron2/tacotron2_statedict.pt
+*tacotron2_statedict.pt
 
 # dont save audio data to git
 *.ogg
