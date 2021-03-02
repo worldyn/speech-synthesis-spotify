@@ -64,6 +64,10 @@ def process_episode(model, episode_path: Path):
 
 if __name__ == "__main__":
     model = keras.models.load_model(Path(__file__).parent / "model.h5", compile=False)
-    episode_paths = [path for path in Path("zcrgrams").iterdir() if path.is_dir()]
+    episode_paths = [
+        path
+        for path in Path("zcrgrams").iterdir()
+        if path.is_dir() and path.name != "audio"
+    ]
     for episode_path in tqdm(episode_paths):
         process_episode(model, episode_path)
