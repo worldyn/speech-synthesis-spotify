@@ -5,35 +5,6 @@ import json
 import sys
 import pickle
 
-'''
-## Features of interest
-    - Pitch
-    - F0
-    - Speech Rate
-    - Energy
-    - Intensity
-
-## Input:
-    List of paths and list of lists of tuple timestamps in which the audio should be segmented
-    - Path Type: [Paths],
-    - Timestamps Type: [[(Ts0, Ts1), ...], [(Ts0, Ts1), ...], ...]
-
-## Filtering
-
-    1. Define constant confidence intervals for each feature: Dictionary
-    Ex: 80% for Avg Pith, 50% for Energy
-
-    2. Compute the avg value of each feature for Episode
-        - If Sound.feature out of the interval [Avg feature - %, Avg feature + %]:
-        Discard
-        - Else
-        Keep the segment:
-        Store a list of tuples (init timestamp, final timestamp)
-
-## Output
-
-List of `Segments` representing valid segments
-'''
 
 def group_segments(paths, timestamps):
     ts = {}
