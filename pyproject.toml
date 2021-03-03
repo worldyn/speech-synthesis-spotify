@@ -21,6 +21,7 @@ scipy = "^1.6.1"
 g2p-en = "^2.1.0"
 matplotlib = "3.2"
 praat-parselmouth = "^0.4.0"
+manydo = "^0.1.3"
 
 [tool.poetry.dev-dependencies]
 scipy = "^1.6.1"

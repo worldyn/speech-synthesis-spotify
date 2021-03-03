@@ -1,79 +1,77 @@
-import os
 from pathlib import Path
-from functools import partial
 
 import numpy as np
-from multiprocessing import Pool
-
 from scipy import signal
 from scipy import io
 from scipy.io import wavfile
 
 import soundfile
-
 from PIL import Image
 
-import keras
+import manydo
+from tqdm.auto import tqdm
 
 from .helpers import (
     load_wav,
     create_melspec,
-    normalise,
     zcr_rate,
-    list_filenames,
     colorvec,
     colorvec2,
-    textgrid2annot,
-    annot2textgrid,
 )
 
 
-input_path = Path("./audio/show_60aEckwTYs8xCEpsAasV0o/3NHTGeZoLLIfoHnlwtOu6w.wav")
-output_root = Path("./output")
-
-output_path = output_root / input_path.stem
-output_path.mkdir(parents=True)
-
-sample_rate = 44100
+num_threads = 8
 
 
-# load input wav and split into two second samples
-seconds_per_split = 2
-read_filename, wav_out, num_samples, sample_freq = load_wav(
-    input_path.as_posix(), sr=sample_rate
-)
-num_splits = num_samples // (seconds_per_split * sample_rate)
-one_channel_out = wav_out[:, 0]  # only use left channel
-wav_in = np.reshape(
-    one_channel_out[: seconds_per_split * sample_rate * num_splits],
-    (num_splits, seconds_per_split * sample_rate),
-)
+def process_file(path: Path):
+    sample_rate = 44100
 
-# create mel-spectrogram
-pool = Pool()
-ins = [wav_in[r, :] for r in range(num_splits)]
-
-melspecs = pool.map(create_melspec, ins)
-
-# use zero crossing rate to create zcr-colored melspectrograms
-zrates = pool.map(zcr_rate, ins)
-func = partial(colorvec, melspecs, zrates)
-col_in = [(melspecs[r], zrates[r]) for r in range(num_splits)]
-colspecs = pool.map(colorvec2, col_in)
-x_complete = np.asarray(colspecs).astype(np.float32)
-print(np.shape(x_complete))
-
-# save the zcr-coloured melspectrograms
-zcr_path = output_root / "zcrgrams" / input_path.stem
-zcr_path.mkdir(parents=True)
-
-for n in range(0, np.shape(x_complete)[0]):
-    imout = np.floor(255 * x_complete[n, ::-1, :, :])
-    imout = imout.astype(np.uint8)
-    img = Image.fromarray(imout, "RGB")
-    img.save(
-        zcr_path / ("zcr" + f"{n:04d}" + ".png"),
-        "PNG",
+    # load input wav and split into two second samples
+    seconds_per_split = 2
+    read_filename, wav_out, num_samples, sample_freq = load_wav(
+        path.as_posix(), sr=sample_rate
+    )
+    num_splits = num_samples // (seconds_per_split * sample_rate)
+    one_channel_out = wav_out[:, 0]  # only use left channel
+    wav_in = np.reshape(
+        one_channel_out[: seconds_per_split * sample_rate * num_splits],
+        (num_splits, seconds_per_split * sample_rate),
     )
 
-soundfile.write(input_path.stem + ".wav", wav_out, sample_freq, subtype="PCM_16")
+    # create mel-spectrogram
+    ins = [wav_in[r, :] for r in range(num_splits)]
+    melspecs = manydo.map(
+        function=create_melspec, iterable=ins, num_jobs=num_threads, loading_bar=False
+    )
+
+    # use zero crossing rate to create zcr-colored melspectrograms
+    zrates = manydo.map(
+        function=zcr_rate, iterable=ins, num_jobs=num_threads, loading_bar=False
+    )
+
+    # save the zcr-coloured melspectrograms
+    zcr_path = Path(path.stem)
+    zcr_path.mkdir(parents=True)
+
+    def save_zcrgram(args):
+        x = np.asarray(colorvec2(args[1]), dtype=np.float32)
+        imout = np.floor(255 * x[::-1, :, :])
+        imout = imout.astype(np.uint8)
+        img = Image.fromarray(imout, "RGB")
+        img.save(
+            zcr_path / ("zcr" + f"{args[0]:04d}" + ".png"),
+            "PNG",
+        )
+
+    manydo.map(
+        function=save_zcrgram,
+        iterable=enumerate(zip(melspecs, zrates)),
+        num_jobs=num_threads,
+        loading_bar=False,
+    )
+
+
+if __name__ == "__main__":
+    file_paths = sorted([path for path in Path(f"./audio").iterdir() if path.is_file()])
+    for file_path in tqdm(file_paths):
+        process_file(file_path)

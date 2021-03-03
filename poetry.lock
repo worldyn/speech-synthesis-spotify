@@ -433,6 +433,18 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "manydo"
+version = "0.1.3"
+description = "Dead-simple parallel execution."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+joblib = ">=1.0.0,<2.0.0"
+tqdm = ">=4.56.0,<5.0.0"
+
+[[package]]
 name = "markdown"
 version = "3.3.4"
 description = "Python implementation of Markdown."
@@ -1109,7 +1121,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "50cac8a669bdedd2eb7a4760e11e65854ed8864306500756c90eb89354658db2"
+content-hash = "d3be6995c957bdb08c121e2964befc8d6ce62e37d705790a7ba91acfbe80b682"
 
 [metadata.files]
 absl-py = [
@@ -1410,6 +1422,10 @@ llvmlite = [
     {file = "llvmlite-0.35.0-cp38-cp38-win32.whl", hash = "sha256:d5fcb329c3a8c69f280b57f91833f8a939e6688eebd4614cf6d3e04424ef3330"},
     {file = "llvmlite-0.35.0-cp38-cp38-win_amd64.whl", hash = "sha256:d99059da5630d4c38b155ef0cccd34932a8d16e2c5d18b29ec6d6ec06ef3c8b7"},
     {file = "llvmlite-0.35.0.tar.gz", hash = "sha256:80e51d5aa02ad72da9870e89d21f9b152b0220ca551b4596a6c0614bcde336fc"},
+]
+manydo = [
+    {file = "manydo-0.1.3-py3-none-any.whl", hash = "sha256:884d7b36e0ef1992d0af978a39fb829e933725f22c5fa1986e0b4cd17203b7ac"},
+    {file = "manydo-0.1.3.tar.gz", hash = "sha256:3bcd1014300f5bd35700512df1cd1fed8e25aae84545312c76872e4f933a37ee"},
 ]
 markdown = [
     {file = "Markdown-3.3.4-py3-none-any.whl", hash = "sha256:96c3ba1261de2f7547b46a00ea8463832c921d3f9d6aba3f255a6f71386db20c"},
