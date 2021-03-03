@@ -3,6 +3,9 @@
     - "*.py"
     - "*.h5"
   operations:
+    segment-breath:
+      main: synthesis.breath.segment
+      requires: breath-npz
     detect-breath:
       main: synthesis.breath.detect
       flags-import: all
@@ -25,6 +28,10 @@
       flags-import: all
   resources:
     breath:
+      path: breath
+      sources:
+        - operation: segment-breath
+    breath-npz:
       path: breath
       sources:
         - operation: detect-breath
