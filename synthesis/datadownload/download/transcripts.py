@@ -5,13 +5,14 @@ from .paths import dataset_root
 
 
 filename = "podcasts-transcripts-6to7.tar.gz"
+rclone_exec = "rclone"
 
 
 if __name__ == "__main__":
     remote_path = dataset_root / "podcasts-no-audio-13GB" / filename
     subprocess.run(
         [
-            "rclone",
+            rclone,
             "copy",
             "--progress",
             remote_path.as_posix(),
