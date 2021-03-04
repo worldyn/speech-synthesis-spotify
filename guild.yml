@@ -17,14 +17,14 @@
       requires:
         - audio-wav
     convert-audio:
-      main: synthesis.data.convert
+      main: synthesis.datadownload.convert
       requires:
         - audio-ogg
     download-audio:
-      main: synthesis.data.download.audio
+      main: synthesis.datadownload.download.audio
       flags-import: all
     download-transcripts:
-      main: synthesis.data.download.transcripts
+      main: synthesis.datadownload.download.transcripts
       flags-import: all
     merge-transcripts:
       main: synthesis.filtering.transcripts_merging
