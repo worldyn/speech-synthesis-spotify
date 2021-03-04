@@ -2,72 +2,19 @@ import numpy as np
 import json
 from segment import Segment
 
-def arg_parse(args):
-    '''
-    input: list of arguments
-    output: dictionary with the parameters
-    '''
-
-    usage = 'python prepare_taco_data.py [input_file]'
-
-    if len(args) < 2 or '-h' in args or '--help' in args:
-        print('Usage:', usage)
-        exit()
-
-    params = {
-        'input_filename': args[1]
-    }
-
-    return params
-
-def group_segments(paths, timestamps, transcripts):
-    ts = {}
-    tr = {}
-    for i in range(len(paths)):
-        ts[paths[i]] = ts.get(paths[i], []) + [timestamps[i]]
-        tr[paths[i]] = tr.get(paths[i], []) + [transcripts[i]]
-        
-
-    paths = []
-    timestamps = []
-    transcripts = []
-    for k in ts.keys():
-        paths.append(k)
-        timestamps.append(ts[k])
-        transcripts.append(tr[k])
-
-    return paths, timestamps, transcripts
-
-def create_segments(paths, timestamps, transcripts):
-    show_segments = []
-    for i in range(len(paths)):
-        ep_path = paths[i]
-        ep_timestamps = timestamps[i]
-        ep_transcripts = transcripts[i]
-        ep_segments = []
-        for j in range(len(ep_timestamps)):
-            print(ep_timestamps, ep_transcripts)
-            seg_start = ep_timestamps[j][0]
-            seg_end = ep_timestamps[j][1]
-            transcript = ep_transcripts[j]
-            seg = Segment(ep_path, seg_start, seg_end, text=transcript)
-            ep_segments.append(seg)
-        show_segments.append(ep_segments)
-
-    return show_segments
-
 # Constants
 INPUT_FILENAME = 'filtered_ep.json'
 TRAIN_OUTPUT = 'ljs_audio_text_train_filelist.txt'
 VAL_OUTPUT = 'ljs_audio_text_val_filelist.txt'
 TEST_OUTPUT = 'ljs_audio_text_test_filelist.txt'
-TRAIN_PERCENT = 0.96
+TRAIN_PERCENT = 0.95
 VAL_PERCENT = 0.04
-TEST_PERCENT = 0
+TEST_PERCENT = 0.01 
 
 def main():
-
     # Loading the intervals from INTERVAL_FILE
+    assert TRAIN_PERCENT + VAL_PERCENT + TEST_PERCENT == 1.0
+    print("=> Loading data...")
     with open(INPUT_FILENAME) as file:
          segments = json.load(file)
 
@@ -75,90 +22,52 @@ def main():
 
     # Loading the data
     paths = segments["paths"]
-    timestamps = segments["timestamps"]
+    #timestamps = segments["timestamps"]
     transcripts = segments["transcripts"]
 
-    print(paths)
-    '''
-    with open(INPUT_FILENAME) as file:
-        data = json.load(file)
+    assert len(paths) == len(transcripts)
+    print("=> Data Loaded...")
 
-        paths = data['paths']
-        timestamps = data['timestamps']
+    n_data = len(paths)
+    n_train = int(TRAIN_PERCENT * n_data)
+    n_val = int(VAL_PERCENT * n_data)
+    n_test = int(TEST_PERCENT * n_data)
+    print("=> n_train {}, n_val {}, n_test {}"\
+        .format(n_train,n_val,n_test))
 
-        try:
-            transcripts = data['transcripts']
-        except:
-            transcripts = [""] * len(paths)
+    # add diff to validation if it doesnt add up
+    if n_train+n_val+n_test < n_data:
+        n_val += n_data - n_train+n_val+n_test
+    # remove from test if too big
+    if n_train+n_val+n_test > n_data:
+        n_test -= n_train+n_val+n_test - n_data
 
-    print(paths)
-    print(timestamps)
-    print(transcripts)
+    train_idx = n_train 
+    val_idx = train_idx + n_val
+    test_idx = val_idx + n_test
 
-    assert len(paths) == len(timestamps)
+    print("=> Writing Tacotron Train data file...")
+    with open(TRAIN_OUTPUT,'w') as f:
+        for i in range(0, train_idx):
+            path = paths[i]
+            text = transcripts[i]
+            f.write(path + "|" + text + "\n")
+    
+    print("=> Writing Tacotron Validation data file...")
+    with open(VAL_OUTPUT,'w') as f:
+        for i in range(train_idx, val_idx):
+            path = paths[i]
+            text = transcripts[i]
+            f.write(path + "|" + text + "\n")
 
-    # Group the segments by episode
-    paths, timestamps, transcripts = group_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
-    print(paths)
-    print(timestamps)
-    print(transcripts)
+    print("=> Writing the rest to Tacotron test data file...")
+    with open(TEST_OUTPUT,'w') as f:
+        for i in range(val_idx, test_idx):
+            path = paths[i]
+            text = transcripts[i]
+            f.write(path + "|" + text + "\n")
 
-    # Creating a list of Segment objects
-    show_segments = create_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
-    print(show_segments)
-
-    # Computing episodes and show stats
-    show_stats, ep_stats = compute_stats(show_segments=show_segments)
-    print('Show stats:', show_stats)
-    print('Episode stats:', show_stats)
-
-    # Filtering the episodes
-
-    show_level, episode_level = filter_segments(show_segments=show_segments, show_stats=show_stats, ep_stats=ep_stats, intervals=intervals, 
-        filter_f0=FILTER_F0, filter_pitch=FILTER_PITCH, filter_sr=FILTER_SR, filter_energy=FILTER_ENERGY, filter_intensity=FILTER_INTENSITY)
-
-    print(len(show_level), 'segments kept at show level')
-    print(len(episode_level), 'segments kept at episode level')
-
-    # Storing show level
-
-    paths = []
-    timestamps = []
-    transcripts = []
-    for segment in show_level:
-        paths.append(segment.path)
-        timestamps.append((segment.start_time, segment.end_time))
-        transcripts.append(segment.text)
-
-    obj = {
-        'paths': paths,
-        'timestamps': timestamps,
-        'transcripts': transcripts
-    }
-
-    with open(SHOW_OUTPUT_FILENAME, 'w') as file:
-        json.dump(obj, file, indent=4)
-
-    # Storing episode level
-
-    paths = []
-    timestamps = []
-    transcripts = []
-    for segment in episode_level:
-        paths.append(segment.path)
-        timestamps.append((segment.start_time, segment.end_time))
-        transcripts.append(segment.text)
-
-    obj = {
-        'paths': paths,
-        'timestamps': timestamps,
-        'transcripts': transcripts
-    }
-
-    with open(EP_OUTPUT_FILENAME, 'w') as file:
-        json.dump(obj, file, indent=4)
-
-'''
+    print("=> Write complete...")
 
 
 if __name__ == '__main__':
