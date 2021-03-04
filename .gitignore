@@ -1,6 +1,9 @@
 # vim stuff
 *.swp
 
+data
+./data
+
 ./synthesis/tacotron2/filelists/ljs_dataset_folder
 synthesis/filter/ljs_audio*
 ./synthesis/tacotron2/tacotron2_statedict.pt
