@@ -7,15 +7,17 @@ from tqdm import tqdm
 def process_episode(annotation_path: Path):
     with np.load(annotation_path) as annotation_file:
         arr = annotation_file["arr_0"]
+
+    allowed_classes = [1, 2]
     start = -2
     end = -1
     result_arr = []
 
     for index, a in enumerate(arr):
         if a == 1:
-            if arr[index - 1] != 1 or index == 0:
+            if arr[index - 1] not in allowed_classes or index == 0:
                 start = index
-            if index == len(arr) - 1 or arr[index + 1] != 1:
+            if index == len(arr) - 1 or arr[index + 1] not in allowed_classes:
                 end = index
                 result_arr.append([start, end])
 
