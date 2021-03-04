@@ -1,14 +1,17 @@
 {
     "paths": [
+        "7td2k4hXAbJsqc5Lvroyah.wav",
+        "7td2k4hXAbJsqc5Lvroyah.wav",
         "7td2k4hXAbJsqc5Lvroyah.wav"
     ],
     "timestamps": [
-        [
-            0.0,
-            5.5
-        ]
+        [0.0, 5.5],
+        [6.0, 11.5],
+        [11.6, 17.0]
     ],
     "transcripts": [
-        "We love information in order to communicate information. We need mediums"
+        "We love information in order to communicate information. We need mediums",
+        "bla bla bla",
+        "hej hej"
     ]
 }

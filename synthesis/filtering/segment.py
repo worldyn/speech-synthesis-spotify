@@ -15,18 +15,22 @@ class Segment:
         self.start_time = start_time
         self.end_time = end_time
         self.time = end_time - start_time
-        self.snd = parselmouth.Sound(path)
+        snd = parselmouth.Sound(path)
+        self.snd = snd.extract_part(
+            from_time = start_time,
+            to_time = end_time
+        )
         self.data = self.snd.values.T # amplitudes
+        print("LEN",len(self.data))
+
         self.samp_freq = samp_freq
         #self.spectrogram = self.snd.to_spectrogram()
-        self.snd = parselmouth.Sound(path)
         self.intensity = self.snd.to_intensity()
         self.pitch_obj = self.snd.to_pitch()
         self.pitch = self.pitch_obj.selected_array['frequency']
         self.energy = self.snd.get_energy()
+
         self.text = text
-        # pre-emphasize
-        #self.snd_emp = self.snd.copy().pre_emphasize()
 
     def write(self,path):
        wavfile.write(path, self.samp_freq, self.data) 
@@ -50,6 +54,7 @@ class Segment:
 
     def draw_data(self):
         plt.plot(self.data)
+        plt.show()
 
     def draw_spectrogram(self, dynamic_range=70):
         X, Y = self.spectrogram.x_grid(), self.spectrogram.y_grid()
@@ -60,6 +65,7 @@ class Segment:
         plt.ylim([self.spectrogram.ymin, self.spectrogram.ymax])
         plt.xlabel("time [s]")
         plt.ylabel("frequency [Hz]")
+        plt.show()
 
     def draw_intensity(self):
         plt.plot(
@@ -70,6 +76,7 @@ class Segment:
         plt.grid(False)
         plt.ylim(0)
         plt.ylabel("intensity [dB]")
+        plt.show()
 
     def draw_pitch(self):
         pitch_values = self.pitch
@@ -82,3 +89,4 @@ class Segment:
         plt.grid(False)
         plt.ylim(0, self.pitch_obj.ceiling)
         plt.ylabel("fundamental frequency [Hz]")
+        plt.show()

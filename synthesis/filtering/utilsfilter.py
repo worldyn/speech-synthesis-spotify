@@ -26,8 +26,8 @@ def trim(wavdata, start, end, fs_wav):
 # segment_size_t in s
 def segment_interval(signal, fs, segment_size_t):
     signal_len = len(signal)
-    segment_size = segment_size_t * fs
-    segments = np.array([signal[x:x + segment_size] for x in
+    segment_size = int(segment_size_t * fs)
+    segments = np.array([signal[x:x + int(segment_size)] for x in
                          np.arange(0, signal_len, segment_size)])
     return segments
 
