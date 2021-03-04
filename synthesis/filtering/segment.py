@@ -11,7 +11,7 @@ from g2p_en import G2p
 class Segment:
     # todo extract parts
     def __init__(self, path, start_time, end_time, samp_freq = 44100, text=''):
-        self.path = path
+        self.path = path # episode path
         self.start_time = start_time
         self.end_time = end_time
         self.time = end_time - start_time
@@ -32,7 +32,7 @@ class Segment:
 
         self.text = text
 
-    def write(self,path):
+    def write(self,path): 
        wavfile.write(path, self.samp_freq, self.data) 
 
     def pitch_avg(self):

@@ -3,7 +3,7 @@ from segment import Segment
 
 def main():
     #testpath = './testdata/with-noise.wav'
-    testpath = './testdata/7quCH1LZWMKX9xg2tJBMsP.wav'
+    testpath = './data/7quCH1LZWMKX9xg2tJBMsP.wav'
     fs = 44100
     '''
     fs_wav, data_wav = get_wav(testpath)

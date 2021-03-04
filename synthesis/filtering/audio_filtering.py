@@ -1,6 +1,8 @@
 import numpy as np
 import json
 from segment import Segment
+import ntpath
+import os
 
 '''
 ## Features of interest
@@ -76,11 +78,16 @@ def create_segments(paths, timestamps, transcripts):
         ep_transcripts = transcripts[i]
         ep_segments = []
         for j in range(len(ep_timestamps)):
-            print(ep_timestamps, ep_transcripts)
+            #print(ep_timestamps, ep_transcripts)
             seg_start = ep_timestamps[j][0]
             seg_end = ep_timestamps[j][1]
             transcript = ep_transcripts[j]
-            seg = Segment(ep_path, seg_start, seg_end, text=transcript)
+            seg = Segment(
+                DATA_PATH + ep_path, 
+                seg_start, 
+                seg_end, 
+                text=transcript
+            )
             ep_segments.append(seg)
         show_segments.append(ep_segments)
 
@@ -258,7 +265,10 @@ def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_
 INTERVAL_FILE = 'intervals.json'
 INPUT_FILENAME = 'merged.json'
 SHOW_OUTPUT_FILENAME = 'filtered_show.json'
+DATA_PATH = 'data/'
 EP_OUTPUT_FILENAME = 'filtered_ep.json'
+SEGMENTS_KEPT_OUTDIR = 'segments_kept/'
+#SEGMENTS_REMOVE_OUTDIR = 'segments_removed/'
 FILTER_F0 = 1
 FILTER_PITCH = 1
 FILTER_SR = 1
@@ -266,6 +276,12 @@ FILTER_ENERGY = 1
 FILTER_INTENSITY = 1
 
 def main():
+
+    # check that correct dirs exist
+    if not os.path.isdir(SEGMENTS_KEPT_OUTDIR):
+        print("Directory ", SEGMENTS_KEPT_OUTDIR, " doesn't exist...")
+    if not os.path.isdir(DATA_PATH):
+        print(DATA_PATH, " directory doesn't exist...")
 
     # Loading the intervals from INTERVAL_FILE
     with open(INTERVAL_FILE) as file:
@@ -290,31 +306,40 @@ def main():
         except:
             transcripts = [""] * len(paths)
 
-    print(paths)
-    print(timestamps)
-    print(transcripts)
+    #print(paths)
+    #print(timestamps)
+    #print(transcripts)
 
     assert len(paths) == len(timestamps)
 
     # Group the segments by episode
     paths, timestamps, transcripts = group_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
-    print(paths)
-    print(timestamps)
-    print(transcripts)
+    #print(paths)
+    #print(timestamps)
+    #print(transcripts)
 
     # Creating a list of Segment objects
     show_segments = create_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
-    print(show_segments)
+    #print(show_segments)
 
     # Computing episodes and show stats
     show_stats, ep_stats = compute_stats(show_segments=show_segments)
-    print('Show stats:', show_stats)
-    print('Episode stats:', show_stats)
+    #print('Show stats:', show_stats)
+    #print('Episode stats:', show_stats)
 
     # Filtering the episodes
 
-    show_level, episode_level = filter_segments(show_segments=show_segments, show_stats=show_stats, ep_stats=ep_stats, intervals=intervals, 
-        filter_f0=FILTER_F0, filter_pitch=FILTER_PITCH, filter_sr=FILTER_SR, filter_energy=FILTER_ENERGY, filter_intensity=FILTER_INTENSITY)
+    show_level, episode_level = filter_segments(
+        show_segments=show_segments, 
+        show_stats=show_stats, 
+        ep_stats=ep_stats, 
+        intervals=intervals, 
+        filter_f0=FILTER_F0, 
+        filter_pitch=FILTER_PITCH, 
+        filter_sr=FILTER_SR, 
+        filter_energy=FILTER_ENERGY, 
+        filter_intensity=FILTER_INTENSITY
+    )
 
     print(len(show_level), 'segments kept at show level')
     print(len(episode_level), 'segments kept at episode level')
@@ -343,8 +368,15 @@ def main():
     paths = []
     timestamps = []
     transcripts = []
-    for segment in episode_level:
-        paths.append(segment.path)
+    for i,segment in enumerate(episode_level):
+        # save specific segment data instead of reference
+        # to the whole episode
+        ep_name_wav = ntpath.basename(segment.path)
+        ep_name = os.path.splitext(ep_name_wav)[0]
+        segment_saved_path = SEGMENTS_KEPT_OUTDIR + ep_name \
+            + "_segment" + str(i) + ".wav"
+        segment.write(segment_saved_path)
+        paths.append(segment_saved_path)
         timestamps.append((segment.start_time, segment.end_time))
         transcripts.append(segment.text)
 
@@ -356,7 +388,6 @@ def main():
 
     with open(EP_OUTPUT_FILENAME, 'w') as file:
         json.dump(obj, file, indent=4)
-
 
 
 if __name__ == '__main__':
