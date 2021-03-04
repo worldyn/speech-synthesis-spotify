@@ -26,13 +26,6 @@
     download-transcripts:
       main: synthesis.datadownload.download.transcripts
       flags-import: all
-    merge-transcripts:
-      main: synthesis.filtering.transcripts_merging
-      
-    filter-segments:
-      main: synthesis.filtering.audio_filtering
-      requires:
-        - segments-transcript-json
   resources:
     breath:
       path: breath
@@ -58,15 +51,3 @@
       path: audio
       sources:
         - operation: download-audio
-    segments-json:
-      path: segments
-      sources:
-        - operation: 
-    segments-transcript-json:
-      path: segments
-      sources:
-        - operation: merge-transcripts
-    segments-filtered-json:
-      path: segments
-      sources:
-        - operation: filter-segments
