@@ -12,7 +12,7 @@ if __name__ == "__main__":
     remote_path = dataset_root / "podcasts-no-audio-13GB" / filename
     subprocess.run(
         [
-            rclone,
+            rclone_exec,
             "copy",
             "--progress",
             remote_path.as_posix(),

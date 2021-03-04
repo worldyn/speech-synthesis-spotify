@@ -12,7 +12,7 @@ if __name__ == "__main__":
     remote_path = dataset_root / "podcasts-audio-only-2TB" / "podcasts-audio" / subdir
     subprocess.run(
         [
-            rclone,
+            rclone_exec,
             "copy",
             "--progress",
             "--transfers",
