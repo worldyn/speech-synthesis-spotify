@@ -1,7 +1,16 @@
 - model: spotify
+  sourcecode:
+    - "*.py"
+    - "*.h5"
   operations:
+    detect-breath:
+      main: synthesis.breath.detect
+      flags-import: all
+      requires:
+        - zcrgrams
     zcrgrams:
       main: synthesis.breath.zcrgrams
+      flags-import: all
       requires:
         - audio-wav
     convert-audio:
@@ -22,6 +31,14 @@
       requires:
         - segments-transcript-json
   resources:
+    breath:
+      path: breath
+      sources:
+        - operation: detect-breath
+    zcrgrams:
+      path: zcrgrams
+      sources:
+        - operation: zcrgrams
     transcripts:
       path: transcripts
       sources:

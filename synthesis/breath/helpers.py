@@ -15,13 +15,10 @@ from scipy import signal
 from scipy import io
 from scipy.io import wavfile
 
-from praatio import tgio
-
 import librosa
 import librosa.display
 
 
-#%% load_wav function
 def load_wav(fn, sr=None, normalize=True):
     if fn == "":  # ignore empty filenames
         print("filename missing")
@@ -45,7 +42,6 @@ def load_wav(fn, sr=None, normalize=True):
     return (fn, audio, duration, fs)
 
 
-#%% create_melspec function
 def create_melspec(wav_in, sr=None, n_fft=960, hop_length=120, n_mels=128):
     if sr == None:
         sr = min(48000, len(wav_in) // 2)
@@ -60,7 +56,6 @@ def create_melspec(wav_in, sr=None, n_fft=960, hop_length=120, n_mels=128):
     return melspecs
 
 
-#%%
 def normalise(y):
     if np.amax(y) == np.amin(y):
         print("ERROR: max and min values are equal")
@@ -69,7 +64,6 @@ def normalise(y):
     return y
 
 
-#%% zcr function
 def zcr_rate(wav_in, step=240, sz=960):
     # if len(wav_in) < 2*48000:
     #    sz = len(wav_in) // (2*50)
@@ -83,20 +77,6 @@ def zcr_rate(wav_in, step=240, sz=960):
     return zrate
 
 
-#%% list filenames in a folder
-def list_filenames(directory, extensions=None, add_ext=True):
-    for root, dirnames, filenames in os.walk(directory):
-        for filename in filenames:
-            base, ext = os.path.splitext(filename)
-            joined = os.path.join(root, filename)
-            if extensions is None or ext.lower() in extensions:
-                if add_ext:
-                    yield joined
-                else:
-                    yield base
-
-
-#%% vectorised implementation
 def colorvec(
     spec,
     zcrate,
@@ -125,7 +105,6 @@ def colorvec(
     return outp
 
 
-#%% vectorised implementation
 def colorvec2(
     inp,
     maxzcr=0.4,
@@ -151,56 +130,3 @@ def colorvec2(
         )
     outp = outp / 255
     return outp
-
-
-#%% preprocess Textgrid to annotation
-def textgrid2annot(filename, labels, timesteps=40):
-    fps = timesteps / 2
-
-    tg = tgio.openTextgrid(filename + ".TextGrid")
-    firstTier = tg.tierDict[tg.tierNameList[0]]
-    tg_start = [entry[0] for entry in firstTier.entryList]
-    tg_stop = [entry[1] for entry in firstTier.entryList]
-    tg_label = [entry[2] for entry in firstTier.entryList]
-
-    frames = int(fps * tg_stop[-1])
-    annot = np.zeros(frames).astype(int)
-    labs = list(sorted(set(tg_label)))
-    for i in range(len(labs)):
-        if labs[i] not in labels:
-            labels.append(labs[i])
-    for i in range(0, len(tg_label)):
-        annot[
-            int((tg_start[i] + 1 / timesteps) * fps) : int(
-                (tg_stop[i] + 1 / timesteps) * fps
-            )
-        ] = labels.index(tg_label[i])
-    return annot, labels
-
-
-def annot2textgrid(filename, labels, annot, timesteps=40):
-    fps = timesteps / 2
-
-    annotTier = tgio.IntervalTier("annot", [], 0, pairedWav=filename + ".wav")
-
-    tg = tgio.Textgrid()
-    tg.addTier(annotTier)
-
-    w_change = np.where(annot[:-1] != annot[1:])[0] + 1
-    w_id = annot[w_change]
-    # timegrid = np.zeros((len(w_change),2))
-    annotTier.insertEntry(
-        (0, w_change[0] / fps, labels[annot[0]]), warnFlag=True, collisionCode="replace"
-    )
-    for i in range(len(w_change) - 1):
-        annotTier.insertEntry(
-            (w_change[i] / fps, w_change[i + 1] / fps, labels[w_id[i]]),
-            warnFlag=True,
-            collisionCode="replace",
-        )
-    annotTier.insertEntry(
-        (w_change[-1] / fps, len(annot) / fps, labels[annot[-1]]),
-        warnFlag=True,
-        collisionCode="replace",
-    )
-    tg.save(filename + ".TextGrid")
