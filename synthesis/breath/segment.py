@@ -8,7 +8,7 @@ def process_episode(annotation_path: Path):
     with np.load(annotation_path) as annotation_file:
         arr = annotation_file["arr_0"]
 
-    allowed_classes = [1, 2]
+    allowed_classes = [1, 2, 0]
     start = -2
     end = -1
     result_arr = []
@@ -19,7 +19,7 @@ def process_episode(annotation_path: Path):
                 start = index
             if index == len(arr) - 1 or arr[index + 1] not in allowed_classes:
                 end = index
-                result_arr.append([start, end])
+                result_arr.append([start, end, a])
 
     with open(annotation_path.name.replace("npz", "json"), "w") as file:
         json.dump(trans_in_seconds(result_arr), file)
