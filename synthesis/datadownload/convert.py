@@ -16,5 +16,6 @@ if __name__ == "__main__":
                 input_path,
                 Path(input_path).relative_to(input_dir).with_suffix(".wav"),
             ],
-            capture_output=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
         )
