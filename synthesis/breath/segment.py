@@ -6,26 +6,28 @@ from tqdm import tqdm
 
 def process_episode(annotation_path: Path):
     with np.load(annotation_path) as annotation_file:
-        arr = annotation_file["arr_0"]
+        predictions = annotation_file["arr_0"]
 
     allowed_classes = [1, 2]
-    start = -2
-    end = -1
-    result_arr = []
-
-    for index, a in enumerate(arr):
-        if a == 1:
-            if arr[index - 1] not in allowed_classes or index == 0:
-                start = index
-            if index == len(arr) - 1 or arr[index + 1] not in allowed_classes:
-                end = index
-                result_arr.append([start, end])
+    predictions_expanded = [0] + list(predictions) + [0]
+    pairs = list(enumerate(zip(predictions_expanded[:-1], predictions_expanded[1:])))
+    starts = [
+        idx
+        for idx, (prev_prediction, next_prediction) in pairs
+        if prev_prediction not in allowed_classes and next_prediction in allowed_classes
+    ]
+    ends = [
+        idx
+        for idx, (prev_prediction, next_prediction) in pairs
+        if prev_prediction in allowed_classes and next_prediction not in allowed_classes
+    ]
+    segments = list(zip(starts, ends))
 
     with open(annotation_path.name.replace("npz", "json"), "w") as file:
-        json.dump(trans_in_seconds(result_arr), file)
+        json.dump(indices_to_seconds(segments), file)
 
 
-def trans_in_seconds(arr):
+def indices_to_seconds(arr):
     arr = np.array(arr) * 0.05
     return arr.tolist()
 
