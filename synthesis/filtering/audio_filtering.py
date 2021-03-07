@@ -1,8 +1,11 @@
 import numpy as np
 import json
-from segment import Segment
 import ntpath
 import os
+from scipy.io import wavfile
+import parselmouth
+#from utilsfilter import *
+from g2p_en import G2p
 
 '''
 ## Features of interest
@@ -34,6 +37,54 @@ import os
 
 List of `Segments` representing valid segments
 '''
+
+# Uses the parselmouth library for audio data usage
+# https://parselmouth.readthedocs.io
+
+class Segment:
+    # todo extract parts
+    def __init__(self, path, start_time, end_time, samp_freq = 44100, text=''):
+        self.path = path # episode path
+        self.start_time = start_time
+        self.end_time = end_time
+        self.time = end_time - start_time
+        snd = parselmouth.Sound(path)
+        self.snd = snd.extract_part(
+            from_time = start_time,
+            to_time = end_time
+        )
+        self.data = self.snd.values.T # amplitudes
+        print("LEN",len(self.data))
+
+        self.samp_freq = samp_freq
+        #self.spectrogram = self.snd.to_spectrogram()
+        self.intensity = self.snd.to_intensity()
+        self.pitch_obj = self.snd.to_pitch()
+        self.pitch = self.pitch_obj.selected_array['frequency']
+        self.energy = self.snd.get_energy()
+
+        self.text = text
+
+    def write(self,path): 
+       wavfile.write(path, self.samp_freq, self.data) 
+
+    def pitch_avg(self):
+        return np.average(self.pitch)
+
+    def get_energy(self):
+        return self.energy
+
+    def intensity_avg(self):
+        return np.average(self.intensity)
+    
+    def get_speech_rate(self):
+        # Uses g2pE for phoneme conversion
+        # https://github.com/Kyubyong/g2p
+        g2p = G2p()
+        phonemes = g2p(self.text)
+        phonemes = [s for s in phonemes if s.strip()]
+        return len(phonemes) / self.time
+
 
 def arg_parse(args):
     '''
@@ -294,10 +345,10 @@ def inside_intervals(segment, stats, filter_f0, filter_pitch, filter_sr, filter_
 
 # Constants
 INPUT_FILENAME = 'merged/merged.json'
-SHOW_OUTPUT_FILENAME = 'filtered/filtered_show.json'
+SHOW_OUTPUT_FILENAME = 'filtered_show.json'
 DATA_PATH = 'audio/'
-EP_OUTPUT_FILENAME = 'filtered/filtered_ep.json'
-SEGMENTS_KEPT_OUTDIR = 'filtered/'
+EP_OUTPUT_FILENAME = 'filtered_ep.json'
+#SEGMENTS_KEPT_OUTDIR = 'filtered/'
 #SEGMENTS_REMOVE_OUTDIR = 'segments_removed/'
 FILTER_F0 = 1
 FILTER_PITCH = 1
@@ -328,10 +379,12 @@ def main():
     LENGTH_TOP_BOUND = float(LENGTH_TOP_BOUND)
 
     # check that correct dirs exist
+    '''
     if not os.path.isdir(SEGMENTS_KEPT_OUTDIR):
         print("Directory ", SEGMENTS_KEPT_OUTDIR, " doesn't exist...")
     if not os.path.isdir(DATA_PATH):
         print(DATA_PATH, " directory doesn't exist...")
+    '''
 
     '''
     # Loading the intervals from INTERVAL_FILE
@@ -425,7 +478,7 @@ def main():
         # to the whole episode
         ep_name_wav = ntpath.basename(segment.path)
         ep_name = os.path.splitext(ep_name_wav)[0]
-        segment_saved_path = SEGMENTS_KEPT_OUTDIR + ep_name \
+        segment_saved_path = ep_name \
             + "_segment" + str(i) + ".wav"
         segment.write(segment_saved_path)
         paths.append(segment_saved_path)
@@ -445,6 +498,3 @@ def main():
 if __name__ == '__main__':
     main()
  
-
-
-
