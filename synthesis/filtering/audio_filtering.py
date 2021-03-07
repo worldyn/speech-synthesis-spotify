@@ -134,6 +134,10 @@ def create_segments(paths, timestamps, transcripts):
             seg_start = ep_timestamps[j][0]
             seg_end = ep_timestamps[j][1]
             transcript = ep_transcripts[j]
+
+            if seg_end - seg_start < LENGTH_BOTTOM_BOUND or seg_end - seg_start > LENGTH_TOP_BOUND:
+                continue
+
             seg = Segment(
                 DATA_PATH + ep_path, 
                 seg_start, 
