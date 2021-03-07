@@ -31,15 +31,15 @@ def main():
     n_train = int(TRAIN_PERCENT * n_data)
     n_val = int(VAL_PERCENT * n_data)
     n_test = int(TEST_PERCENT * n_data)
+    print("=> Number of data points in total: ", n_data)
     print("=> n_train {}, n_val {}, n_test {}"\
         .format(n_train,n_val,n_test))
 
-    # add diff to validation if it doesnt add up
-    if n_train+n_val+n_test < n_data:
-        n_val += n_data - n_train+n_val+n_test
     # remove from test if too big
     if n_train+n_val+n_test > n_data:
         n_test -= n_train+n_val+n_test - n_data
+
+    assert n_train+n_val+n_test <= n_data
 
     train_idx = n_train 
     val_idx = train_idx + n_val
