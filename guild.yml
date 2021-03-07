@@ -3,6 +3,11 @@
     - "*.py"
     - "*.h5"
   operations:
+    prepare-taco-data:
+      main: synthesis.filtering.prepare_taco_data 
+      flags-import: all
+      requires:
+        - filtered
     filter-segments:
       main: synthesis.filtering.audio_filtering
       flags-import: all
@@ -39,6 +44,10 @@
       main: synthesis.datadownload.download.transcripts
       flags-import: all
   resources:
+    filelists:
+      path: filelists
+      sources:
+        - operation: prepare-taco-data
     filtered:
       path: filtered
       sources:

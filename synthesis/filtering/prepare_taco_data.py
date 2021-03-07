@@ -3,7 +3,7 @@ import json
 from segment import Segment
 
 # Constants
-INPUT_FILENAME = 'filtered_ep.json'
+INPUT_FILENAME = 'filtered_show.json'
 TRAIN_OUTPUT = 'ljs_audio_text_train_filelist.txt'
 VAL_OUTPUT = 'ljs_audio_text_val_filelist.txt'
 TEST_OUTPUT = 'ljs_audio_text_test_filelist.txt'
