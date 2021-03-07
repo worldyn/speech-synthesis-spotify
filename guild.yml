@@ -3,6 +3,12 @@
     - "*.py"
     - "*.h5"
   operations:
+    filter-segments:
+      main: synthesis.filtering.audio_filtering
+      flags-import: all
+      requires:
+        - merged
+        - audio-wav
     merge-text:
       main: synthesis.filtering.transcripts_merging
       flags-import: all
@@ -33,6 +39,10 @@
       main: synthesis.datadownload.download.transcripts
       flags-import: all
   resources:
+    filtered:
+      path: filtered
+      sources:
+        - operation: filter-segments
     merged:
       path: merged
       sources:

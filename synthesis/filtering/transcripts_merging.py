@@ -72,7 +72,6 @@ def fill_episode(ep_path, ep_timestamps):
                     
 
 # Constants
-INPUT_FILENAME = 'input_segments.json'
 INPUT_DIR = 'breath'
 OUTPUT_FILENAME = 'merged.json'
 DATA_DIR = 'transcripts/0/L/show_0L0j6X6cf3DO1Bs0D0K4Ch'

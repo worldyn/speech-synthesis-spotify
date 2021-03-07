@@ -11,6 +11,7 @@ import os
     - Speech Rate
     - Energy
     - Intensity
+    - Length
 
 ## Input:
     List of paths and list of lists of tuple timestamps in which the audio should be segmented
@@ -101,11 +102,13 @@ def compute_stats(show_segments):
         'avg_sr': [],
         'avg_energy': [],
         'avg_intensity': [],
+        'avg_length' : [],
         'std_f0': [],
         'std_pitch': [],
         'std_sr': [],
         'std_energy': [],
-        'std_intensity': []
+        'std_intensity': [],
+        'std_length': []
     }
 
     show_stats = {
@@ -114,11 +117,13 @@ def compute_stats(show_segments):
         'avg_sr': 0,
         'avg_energy': 0,
         'avg_intensity': 0,
+        'avg_length' : 0,
         'std_f0': 0,
         'std_pitch': 0,
         'std_sr': 0,
         'std_energy': 0,
-        'std_intensity': 0
+        'std_intensity': 0,
+        'std_length': 0
     }
 
     show_avg_f0 = []
@@ -126,12 +131,14 @@ def compute_stats(show_segments):
     show_avg_sr = []
     show_avg_energy = []
     show_avg_intensity = []
+    show_avg_length = []
     for ep_segments in show_segments:
         ep_avg_f0 = []
         ep_avg_pitch = []
         ep_avg_sr = []
         ep_avg_energy = []
         ep_avg_intensity = []
+        ep_avg_length = []
         for segment in ep_segments:
             # F0
             #f0 = segment.
@@ -153,19 +160,24 @@ def compute_stats(show_segments):
             intensity = segment.intensity_avg()
             ep_avg_intensity.append(intensity)
             show_avg_intensity.append(intensity)
-
+            # Length
+            length = segment.time
+            ep_avg_length.append(length)
+            show_avg_length.append(length)
 
         ep_stats['avg_f0'].append(np.mean(ep_avg_f0))
         ep_stats['avg_pitch'].append(np.mean(ep_avg_pitch))
         ep_stats['avg_sr'].append(np.mean(ep_avg_sr))
         ep_stats['avg_energy'].append(np.mean(ep_avg_energy))
         ep_stats['avg_intensity'].append(np.mean(ep_avg_intensity))
+        ep_stats['avg_length'].append(np.mean(ep_avg_length))
 
         ep_stats['std_f0'].append(np.std(ep_avg_f0))
         ep_stats['std_pitch'].append(np.std(ep_avg_pitch))
         ep_stats['std_sr'].append(np.std(ep_avg_sr))
         ep_stats['std_energy'].append(np.std(ep_avg_energy))
         ep_stats['std_intensity'].append(np.std(ep_avg_intensity))
+        ep_stats['std_length'].append(np.std(ep_avg_length))
 
 
     show_stats['avg_f0'] = np.mean(show_avg_f0)
@@ -173,16 +185,18 @@ def compute_stats(show_segments):
     show_stats['avg_sr'] = np.mean(show_avg_sr)
     show_stats['avg_energy'] = np.mean(show_avg_energy)
     show_stats['avg_intensity'] = np.mean(show_avg_intensity)
+    show_stats['avg_length'] = np.mean(show_avg_length)
     
     show_stats['std_f0'] = np.std(show_avg_f0)
     show_stats['std_pitch'] = np.std(show_avg_pitch)
     show_stats['std_sr'] = np.std(show_avg_sr)
     show_stats['std_energy'] = np.std(show_avg_energy)
     show_stats['std_intensity'] = np.std(show_avg_intensity)
+    show_stats['std_length'] = np.std(show_avg_length)
 
     return show_stats, ep_stats
 
-def filter_segments(show_segments, show_stats, ep_stats, intervals, filter_f0 = True, filter_pitch = True, filter_sr = True, filter_energy = True, filter_intensity = True):
+def filter_segments(show_segments, show_stats, ep_stats, filter_f0 = True, filter_pitch = True, filter_sr = True, filter_energy = True, filter_intensity = True, filter_length = True):
     show_level = []
     episode_level = []
 
@@ -194,29 +208,31 @@ def filter_segments(show_segments, show_stats, ep_stats, intervals, filter_f0 = 
                 'avg_sr': ep_stats['avg_sr'][ep_index],
                 'avg_energy': ep_stats['avg_energy'][ep_index],
                 'avg_intensity': ep_stats['avg_intensity'][ep_index],
+                'avg_length': ep_stats['avg_length'][ep_index],
                 'std_f0': ep_stats['std_f0'][ep_index],
                 'std_pitch': ep_stats['std_pitch'][ep_index],
                 'std_sr': ep_stats['std_sr'][ep_index],
                 'std_energy': ep_stats['std_energy'][ep_index],
-                'std_intensity': ep_stats['std_intensity'][ep_index]
-                
+                'std_intensity': ep_stats['std_intensity'][ep_index],
+                'std_length': ep_stats['std_length'][ep_index]
             }
 
-            if inside_intervals(segment=segment, stats=this_ep_stats, intervals=intervals, filter_f0=filter_f0, filter_pitch=filter_pitch, filter_sr=filter_sr, filter_energy=filter_energy, filter_intensity=filter_intensity):
+            if inside_intervals(segment=segment, stats=this_ep_stats, filter_f0=filter_f0, filter_pitch=filter_pitch, filter_sr=filter_sr, filter_energy=filter_energy, filter_intensity=filter_intensity, filter_length=filter_length):
+
                 episode_level.append(segment)
 
-            if inside_intervals(segment=segment, stats=show_stats, intervals=intervals, filter_f0=filter_f0, filter_pitch=filter_pitch, filter_sr=filter_sr, filter_energy=filter_energy, filter_intensity=filter_intensity):
+            if inside_intervals(segment=segment, stats=show_stats, filter_f0=filter_f0, filter_pitch=filter_pitch, filter_sr=filter_sr, filter_energy=filter_energy, filter_intensity=filter_intensity, filter_length=filter_length):
                 show_level.append(segment)
 
     return show_level, episode_level
 
-def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_sr, filter_energy, filter_intensity):
+def inside_intervals(segment, stats, filter_f0, filter_pitch, filter_sr, filter_energy, filter_intensity, filter_length):
 
     # F0
     ''''
     if filter_f0:
-        lower_bound = stats['avg_f0'] - stats['std_f0']*intervals['f0_interval']/2
-        upper_bound = stats['avg_f0'] + stats['std_f0']*intervals['f0_interval']/2
+        lower_bound = stats['avg_f0'] - stats['std_f0']*F0_INTERVAL/2
+        upper_bound = stats['avg_f0'] + stats['std_f0']*F0_INTERVAL/2
         
         f0 = segment.
         if f0 < lower_bound or f0 > upper_bound:
@@ -225,8 +241,8 @@ def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_
 
     # Pitch
     if filter_pitch:
-        lower_bound = stats['avg_pitch'] - stats['std_pitch']*intervals['pitch_interval']/2
-        upper_bound = stats['avg_pitch'] + stats['std_pitch']*intervals['pitch_interval']/2
+        lower_bound = stats['avg_pitch'] - stats['std_pitch']*PITCH_INTERVAL/2
+        upper_bound = stats['avg_pitch'] + stats['std_pitch']*PITCH_INTERVAL/2
         
         pitch = segment.pitch_avg()
         if pitch < lower_bound or pitch > upper_bound:
@@ -234,8 +250,8 @@ def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_
 
     # Speech Rate
     if filter_sr:
-        lower_bound = stats['avg_sr'] - stats['std_sr']*intervals['sr_interval']/2
-        upper_bound = stats['avg_sr'] + stats['std_sr']*intervals['sr_interval']/2
+        lower_bound = stats['avg_sr'] - stats['std_sr']*SR_INTERVAL/2
+        upper_bound = stats['avg_sr'] + stats['std_sr']*SR_INTERVAL/2
         
         sr = segment.get_speech_rate()
         if sr < lower_bound or sr > upper_bound:
@@ -243,8 +259,8 @@ def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_
 
     # Energy
     if filter_energy:
-        lower_bound = stats['avg_energy'] - stats['std_energy']*intervals['energy_interval']/2
-        upper_bound = stats['avg_energy'] + stats['std_energy']*intervals['energy_interval']/2
+        lower_bound = stats['avg_energy'] - stats['std_energy']*ENERGY_INTERVAL/2
+        upper_bound = stats['avg_energy'] + stats['std_energy']*ENERGY_INTERVAL/2
         
         energy = segment.get_energy()
         if energy < lower_bound or energy > upper_bound:
@@ -252,30 +268,64 @@ def inside_intervals(segment, stats, intervals, filter_f0, filter_pitch, filter_
 
     # Intensity
     if filter_intensity:
-        lower_bound = stats['avg_intensity'] - stats['std_intensity']*intervals['intensity_interval']/2
-        upper_bound = stats['avg_intensity'] + stats['std_intensity']*intervals['intensity_interval']/2
+        lower_bound = stats['avg_intensity'] - stats['std_intensity']*INTENSITY_INTERVAL/2
+        upper_bound = stats['avg_intensity'] + stats['std_intensity']*INTENSITY_INTERVAL/2
         
         intensity = segment.intensity_avg()
         if intensity < lower_bound or intensity > upper_bound:
             return False 
 
+    # Length
+    if filter_length:
+
+        length = segment.time
+        
+        
+        if length > LENGTH_TOP_BOUND or length < LENGTH_BOTTOM_BOUND:
+            return False
+
+        #lower_bound = stats['avg_length'] - stats['std_length']*intervals['intensity_length']/2
+        #upper_bound = stats['avg_length'] + stats['std_length']*intervals['intensity_length']/2
+        
+        #if intensity < lower_bound or intensity > upper_bound:
+        #    return False 
+
     return True
 
 # Constants
-INTERVAL_FILE = 'intervals.json'
-INPUT_FILENAME = 'merged.json'
-SHOW_OUTPUT_FILENAME = 'filtered_show.json'
-DATA_PATH = 'data/'
-EP_OUTPUT_FILENAME = 'filtered_ep.json'
-SEGMENTS_KEPT_OUTDIR = 'segments_kept/'
+INPUT_FILENAME = 'merged/merged.json'
+SHOW_OUTPUT_FILENAME = 'filtered/filtered_show.json'
+DATA_PATH = 'audio/'
+EP_OUTPUT_FILENAME = 'filtered/filtered_ep.json'
+SEGMENTS_KEPT_OUTDIR = 'filtered/'
 #SEGMENTS_REMOVE_OUTDIR = 'segments_removed/'
 FILTER_F0 = 1
 FILTER_PITCH = 1
 FILTER_SR = 1
 FILTER_ENERGY = 1
 FILTER_INTENSITY = 1
+FILTER_LENGTH = 1
+
+F0_INTERVAL = 1
+PITCH_INTERVAL = 1
+SR_INTERVAL = 1
+ENERGY_INTERVAL = 1
+INTENSITY_INTERVAL = 1
+LENGTH_BOTTOM_BOUND = 3
+LENGTH_TOP_BOUND = 10
+
 
 def main():
+
+    global F0_INTERVAL, PITCH_INTERVAL, SR_INTERVAL, ENERGY_INTERVAL, INTENSITY_INTERVAL, LENGTH_BOTTOM_BOUND, LENGTH_TOP_BOUND
+
+    F0_INTERVAL = float(F0_INTERVAL)
+    PITCH_INTERVAL = float(PITCH_INTERVAL)
+    SR_INTERVAL = float(SR_INTERVAL)
+    ENERGY_INTERVAL = float(ENERGY_INTERVAL)
+    INTENSITY_INTERVAL = float(INTENSITY_INTERVAL)
+    LENGTH_BOTTOM_BOUND = float(LENGTH_BOTTOM_BOUND)
+    LENGTH_TOP_BOUND = float(LENGTH_TOP_BOUND)
 
     # check that correct dirs exist
     if not os.path.isdir(SEGMENTS_KEPT_OUTDIR):
@@ -283,11 +333,13 @@ def main():
     if not os.path.isdir(DATA_PATH):
         print(DATA_PATH, " directory doesn't exist...")
 
+    '''
     # Loading the intervals from INTERVAL_FILE
     with open(INTERVAL_FILE) as file:
         intervals = json.load(file)
 
     print(intervals)
+    '''
 
     # Loading the data
 
@@ -333,12 +385,12 @@ def main():
         show_segments=show_segments, 
         show_stats=show_stats, 
         ep_stats=ep_stats, 
-        intervals=intervals, 
         filter_f0=FILTER_F0, 
         filter_pitch=FILTER_PITCH, 
         filter_sr=FILTER_SR, 
         filter_energy=FILTER_ENERGY, 
-        filter_intensity=FILTER_INTENSITY
+        filter_intensity=FILTER_INTENSITY,
+        filter_length=FILTER_LENGTH
     )
 
     print(len(show_level), 'segments kept at show level')

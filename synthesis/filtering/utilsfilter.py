@@ -4,7 +4,6 @@ from scipy.io import wavfile
 #import plotly.graph_objs as go
 #import plotly
 import numpy as np
-import matplotlib.pyplot as plt
 import parselmouth
 from parselmouth.praat import call
 

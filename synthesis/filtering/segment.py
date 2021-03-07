@@ -1,6 +1,5 @@
 from scipy.io import wavfile
 import numpy as np
-import matplotlib.pyplot as plt
 import parselmouth
 from utilsfilter import *
 from g2p_en import G2p
@@ -52,6 +51,7 @@ class Segment:
         phonemes = [s for s in phonemes if s.strip()]
         return len(phonemes) / self.time
 
+    '''
     def draw_data(self):
         plt.plot(self.data)
         plt.show()
@@ -90,3 +90,4 @@ class Segment:
         plt.ylim(0, self.pitch_obj.ceiling)
         plt.ylabel("fundamental frequency [Hz]")
         plt.show()
+    '''
