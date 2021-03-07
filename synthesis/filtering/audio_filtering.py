@@ -54,7 +54,7 @@ class Segment:
             to_time = end_time
         )
         self.data = self.snd.values.T # amplitudes
-        print("LEN",len(self.data))
+        #print("LEN",len(self.data))
 
         self.samp_freq = samp_freq
         #self.spectrogram = self.snd.to_spectrogram()
