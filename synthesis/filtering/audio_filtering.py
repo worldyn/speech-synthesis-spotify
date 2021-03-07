@@ -125,6 +125,8 @@ def group_segments(paths, timestamps, transcripts):
 def create_segments(paths, timestamps, transcripts):
     show_segments = []
     for i in range(len(paths)):
+        if i % 100 == 0:
+            print("=> ", i, " / ", len(paths), " segments obj created...")
         ep_path = paths[i]
         ep_timestamps = timestamps[i]
         ep_transcripts = transcripts[i]
@@ -256,6 +258,8 @@ def filter_segments(show_segments, show_stats, ep_stats, filter_f0 = True, filte
     episode_level = []
 
     for ep_index, ep_segments in enumerate(show_segments):
+        if ep_index % 12 == 0:
+            print("=> ", ep_index, " / ", len(show_segments), " episodes")
         for segment in ep_segments:
             this_ep_stats = {
                 'avg_f0': ep_stats['avg_f0'][ep_index],
@@ -361,11 +365,11 @@ FILTER_ENERGY = 1
 FILTER_INTENSITY = 1
 FILTER_LENGTH = 1
 
-F0_INTERVAL = 1
-PITCH_INTERVAL = 1
-SR_INTERVAL = 1
-ENERGY_INTERVAL = 1
-INTENSITY_INTERVAL = 1
+F0_INTERVAL = 2
+PITCH_INTERVAL = 2
+SR_INTERVAL = 2
+ENERGY_INTERVAL = 2
+INTENSITY_INTERVAL = 2
 LENGTH_BOTTOM_BOUND = 3
 LENGTH_TOP_BOUND = 10
 
@@ -421,6 +425,7 @@ def main():
 
     assert len(paths) == len(timestamps)
 
+    print("=> Grouping segments by episode ...")
     # Group the segments by episode
     paths, timestamps, transcripts = group_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
     #print(paths)
@@ -428,16 +433,20 @@ def main():
     #print(transcripts)
 
     # Creating a list of Segment objects
+    print("=> Creating segment objects ...")
     show_segments = create_segments(paths=paths, timestamps=timestamps, transcripts=transcripts)
     #print(show_segments)
+    print("=> Number of segment objects: ", len(show_segments))
 
     # Computing episodes and show stats
+    print("=> Computing statistics ...")
     show_stats, ep_stats = compute_stats(show_segments=show_segments)
     #print('Show stats:', show_stats)
     #print('Episode stats:', show_stats)
 
     # Filtering the episodes
 
+    print("=> Performing filtering ...")
     show_level, episode_level = filter_segments(
         show_segments=show_segments, 
         show_stats=show_stats, 
@@ -454,12 +463,19 @@ def main():
     print(len(episode_level), 'segments kept at episode level')
 
     # Storing show level
-
+    print("=> Storing show level...")
     paths = []
     timestamps = []
     transcripts = []
-    for segment in show_level:
-        paths.append(segment.path)
+    for i,segment in enumerate(show_level):
+        if i % 100 == 0:
+            print("=> ", i, " / ", len(show_level), " segments stored")
+        ep_name_wav = ntpath.basename(segment.path)
+        ep_name = os.path.splitext(ep_name_wav)[0]
+        segment_saved_path = ep_name \
+            + "_segment_byshow" + str(i) + ".wav"
+        segment.write(segment_saved_path)
+        paths.append(segment_saved_path)
         timestamps.append((segment.start_time, segment.end_time))
         transcripts.append(segment.text)
 
@@ -473,7 +489,8 @@ def main():
         json.dump(obj, file, indent=4)
 
     # Storing episode level
-
+    print("=> Storing episode level...")
+    
     paths = []
     timestamps = []
     transcripts = []
@@ -483,7 +500,7 @@ def main():
         ep_name_wav = ntpath.basename(segment.path)
         ep_name = os.path.splitext(ep_name_wav)[0]
         segment_saved_path = ep_name \
-            + "_segment" + str(i) + ".wav"
+            + "_segment_byep" + str(i) + ".wav"
         segment.write(segment_saved_path)
         paths.append(segment_saved_path)
         timestamps.append((segment.start_time, segment.end_time))
