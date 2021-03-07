@@ -82,14 +82,17 @@ def main():
 
     paths = []
     timestamps = []
-    for filename in os.listdir(INPUT_DIR):
-        path = INPUT_DIR + "/" + filename
-        with open(path) as file:
-            data = json.load(file)
-            path = path.replace('.json', '.wav')
 
-            paths.append(path)
-            timestamps.append(data)
+
+    for subdir, dirs, files in os.walk(INPUT_DIR):
+        for filename in files:
+            filepath = subdir + os.sep + filename
+            with open(filepath) as file:
+                data = json.load(file)
+                filepath = filepath.replace('.json', '.wav')
+
+                paths.append(filepath)
+                timestamps.append(data)
 
 
     ''' PREVIOUS INPUT FORMAT'''
