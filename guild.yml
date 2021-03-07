@@ -3,6 +3,10 @@
     - "*.py"
     - "*.h5"
   operations:
+    merge-text:
+      main: synthesis.filtering.transcripts_merging
+      requires: 
+        - breath
     segment-breath:
       main: synthesis.breath.segment
       requires: breath-npz
@@ -27,6 +31,10 @@
       main: synthesis.datadownload.download.transcripts
       flags-import: all
   resources:
+    merged:
+      path: merged
+      sources:
+        - operation: merge-text
     breath:
       path: breath
       sources:
