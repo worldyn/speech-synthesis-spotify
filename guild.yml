@@ -5,8 +5,10 @@
   operations:
     merge-text:
       main: synthesis.filtering.transcripts_merging
+      flags-import: all
       requires: 
         - breath
+        - transcripts
     segment-breath:
       main: synthesis.breath.segment
       requires: breath-npz

@@ -75,6 +75,7 @@ def fill_episode(ep_path, ep_timestamps):
 INPUT_FILENAME = 'input_segments.json'
 INPUT_DIR = 'breath'
 OUTPUT_FILENAME = 'merged.json'
+DATA_DIR = 'transcripts/0/L/show_0L0j6X6cf3DO1Bs0D0K4Ch'
 
 def main():
 
@@ -89,9 +90,10 @@ def main():
             filepath = subdir + os.sep + filename
             with open(filepath) as file:
                 data = json.load(file)
-                filepath = filepath.replace('.json', '.wav')
+                
+                datapath = DATA_DIR + os.sep + filename.replace('.json', '.wav')
 
-                paths.append(filepath)
+                paths.append(datapath)
                 timestamps.append(data)
 
 
