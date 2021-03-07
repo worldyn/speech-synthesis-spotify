@@ -112,7 +112,6 @@ def main():
     '''
     print(paths)
     print(timestamps)
-    exit()
 
     transcripts = fill_show(paths, timestamps)
             
