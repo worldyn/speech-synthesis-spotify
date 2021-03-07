@@ -2,7 +2,7 @@ import numpy as np
 import json
 
 # Constants
-INPUT_FILENAME = 'filtered_show.json'
+INPUT_FILENAME = 'filtered/filtered_show.json'
 TRAIN_OUTPUT = 'ljs_audio_text_train_filelist.txt'
 VAL_OUTPUT = 'ljs_audio_text_val_filelist.txt'
 TEST_OUTPUT = 'ljs_audio_text_test_filelist.txt'
