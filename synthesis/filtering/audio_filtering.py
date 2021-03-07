@@ -345,10 +345,10 @@ def inside_intervals(segment, stats, filter_f0, filter_pitch, filter_sr, filter_
 
 # Constants
 INPUT_FILENAME = 'merged/merged.json'
-SHOW_OUTPUT_FILENAME = 'filtered/filtered_show.json'
+SHOW_OUTPUT_FILENAME = 'filtered_show.json'
 DATA_PATH = 'audio/'
-EP_OUTPUT_FILENAME = 'filtered/filtered_ep.json'
-SEGMENTS_KEPT_OUTDIR = 'filtered/'
+EP_OUTPUT_FILENAME = 'filtered_ep.json'
+#SEGMENTS_KEPT_OUTDIR = 'filtered/'
 #SEGMENTS_REMOVE_OUTDIR = 'segments_removed/'
 FILTER_F0 = 1
 FILTER_PITCH = 1
@@ -379,10 +379,12 @@ def main():
     LENGTH_TOP_BOUND = float(LENGTH_TOP_BOUND)
 
     # check that correct dirs exist
+    '''
     if not os.path.isdir(SEGMENTS_KEPT_OUTDIR):
         print("Directory ", SEGMENTS_KEPT_OUTDIR, " doesn't exist...")
     if not os.path.isdir(DATA_PATH):
         print(DATA_PATH, " directory doesn't exist...")
+    '''
 
     '''
     # Loading the intervals from INTERVAL_FILE
@@ -476,7 +478,7 @@ def main():
         # to the whole episode
         ep_name_wav = ntpath.basename(segment.path)
         ep_name = os.path.splitext(ep_name_wav)[0]
-        segment_saved_path = SEGMENTS_KEPT_OUTDIR + ep_name \
+        segment_saved_path = ep_name \
             + "_segment" + str(i) + ".wav"
         segment.write(segment_saved_path)
         paths.append(segment_saved_path)
