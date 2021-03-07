@@ -65,7 +65,7 @@ def group_segments(paths, timestamps, transcripts):
     timestamps = []
     transcripts = []
     for k in ts.keys():
-        paths.append(k)
+        paths.append(k.split('/')[-1])
         timestamps.append(ts[k])
         transcripts.append(tr[k])
 
