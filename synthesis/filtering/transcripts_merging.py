@@ -1,4 +1,4 @@
-from os import stat
+import os
 import scipy.io.wavfile
 import numpy as np
 import json
@@ -73,10 +73,25 @@ def fill_episode(ep_path, ep_timestamps):
 
 # Constants
 INPUT_FILENAME = 'input_segments.json'
+INPUT_DIR = 'breath'
 OUTPUT_FILENAME = 'merged.json'
 
 def main():
 
+    ''' NEW INPUT FORMAT'''
+
+    paths = []
+    timestamps = []
+    for filename in os.listdir(INPUT_DIR):
+        with open(filename) as file:
+            data = json.load(file)
+
+            paths.append(data['paths'])
+            timestamps.append(data['timestamps'])
+
+
+    ''' PREVIOUS INPUT FORMAT'''
+    '''
     # Loading the data
 
     with open(INPUT_FILENAME) as file:
@@ -89,8 +104,10 @@ def main():
 
     # Group the segments by episode
     paths, timestamps = group_segments(paths=paths, timestamps=timestamps)
+    '''
     print(paths)
     print(timestamps)
+    exit()
 
     transcripts = fill_show(paths, timestamps)
             
