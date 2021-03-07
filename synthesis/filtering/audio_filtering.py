@@ -149,6 +149,7 @@ def create_segments(paths, timestamps, transcripts):
             ep_segments.append(seg)
         show_segments.append(ep_segments)
 
+    print("=> All objects created...")
     return show_segments
 
 def compute_stats(show_segments):
@@ -283,6 +284,7 @@ def filter_segments(show_segments, show_stats, ep_stats, filter_f0 = True, filte
             if inside_intervals(segment=segment, stats=show_stats, filter_f0=filter_f0, filter_pitch=filter_pitch, filter_sr=filter_sr, filter_energy=filter_energy, filter_intensity=filter_intensity, filter_length=filter_length):
                 show_level.append(segment)
 
+    print("=> All stats computed...")
     return show_level, episode_level
 
 def inside_intervals(segment, stats, filter_f0, filter_pitch, filter_sr, filter_energy, filter_intensity, filter_length):
@@ -488,6 +490,8 @@ def main():
     with open(SHOW_OUTPUT_FILENAME, 'w') as file:
         json.dump(obj, file, indent=4)
 
+    print("=> All stored by show...")
+
     # Storing episode level
     print("=> Storing episode level...")
     
@@ -495,6 +499,8 @@ def main():
     timestamps = []
     transcripts = []
     for i,segment in enumerate(episode_level):
+        if i % 100 == 0:
+            print("=> ", i, " / ", len(episode_level), " segments stored")
         # save specific segment data instead of reference
         # to the whole episode
         ep_name_wav = ntpath.basename(segment.path)
@@ -515,6 +521,7 @@ def main():
     with open(EP_OUTPUT_FILENAME, 'w') as file:
         json.dump(obj, file, indent=4)
 
+    print("=> All stored by episode...")
 
 if __name__ == '__main__':
     main()
