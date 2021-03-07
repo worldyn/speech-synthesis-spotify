@@ -85,6 +85,8 @@ def main():
     for filename in os.listdir(INPUT_DIR):
         with open(INPUT_DIR + "/" + filename) as file:
             data = json.load(file)
+            print(data)  
+            exit()
 
             paths.append(data['paths'])
             timestamps.append(data['timestamps'])
