@@ -1,6 +1,5 @@
 import numpy as np
 import json
-from segment import Segment
 
 # Constants
 INPUT_FILENAME = 'filtered_show.json'
