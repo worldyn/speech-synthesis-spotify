@@ -4,8 +4,8 @@ import json
 # Constants
 INPUT_FILENAME = 'filtered/filtered_show.json'
 TRAIN_OUTPUT = 'ljs_audio_text_train_filelist.txt'
-VAL_OUTPUT = 'ljs_audio_text_val_filelist.txt'
-TEST_OUTPUT = 'ljs_audio_text_test_filelist.txt'
+VAL_OUTPUT = 'ljs_dataset_folder/ljs_audio_text_val_filelist.txt'
+TEST_OUTPUT = 'ljs_dataset_folder/ljs_audio_text_test_filelist.txt'
 TRAIN_PERCENT = 0.95
 VAL_PERCENT = 0.04
 TEST_PERCENT = 0.01 
