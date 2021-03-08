@@ -3,6 +3,9 @@
 
 data
 
+outdir
+logdir
+logs
 filelists
 tacotron2_statedict.pt
 ljs_audio_text*
