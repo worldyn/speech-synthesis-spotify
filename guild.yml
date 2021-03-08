@@ -4,7 +4,7 @@
     - "*.h5"
   operations:
     prepare-taco-data:
-      main: synthesis.filtering.prepare_taco_data 
+      main: synthesis.filtering.prepare_taco_data
       flags-import: all
       requires:
         - filtered
@@ -17,11 +17,12 @@
     merge-text:
       main: synthesis.filtering.transcripts_merging
       flags-import: all
-      requires: 
+      requires:
         - breath
         - transcripts
     segment-breath:
       main: synthesis.breath.segment
+      flags-import: all
       requires: breath-npz
     detect-breath:
       main: synthesis.breath.detect
