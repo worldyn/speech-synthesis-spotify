@@ -1,17 +1,10 @@
 # vim stuff
 *.swp
 
-/data/
+data
 
-synthesis/tacotron2/filelists/ljs_dataset_folder
-synthesis/tacotron2/filelists
-synthesis/filter/ljs_audio*
-/synthesis/tacotron2/tacotron2_statedict.pt
-*tacotron2_statedict.pt
-*eva_instrutions.txt
-*/segments_kept/*
-*/segments_removed/*
-*ljs_audio_text*
+filelists
+tacotron2_statedict.pt
 ljs_audio_text*
 
 # dont save audio data to git
