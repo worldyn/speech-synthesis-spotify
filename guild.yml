@@ -44,10 +44,6 @@
       main: synthesis.datadownload.download.transcripts
       flags-import: all
   resources:
-    filelists:
-      path: filelists
-      sources:
-        - operation: prepare-taco-data
     filtered:
       path: filtered
       sources:
