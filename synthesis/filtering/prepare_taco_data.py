@@ -20,58 +20,42 @@ test_fraction = 0.01
 
 def prepare_annotations():
     # Loading the intervals from INTERVAL_FILE
-    assert train_fraction + val_fraction + test_fraction == 1.0
+    assert train_fraction + val_fraction + test_fraction <= 1.0
     print("=> Loading annotations...")
     with open(Path("filtered") / input_filename) as file:
         segments = json.load(file)
 
     # Loading the data
-    paths = segments["paths"]
+    audio_paths = segments["paths"]
     # timestamps = segments["timestamps"]
     transcripts = segments["transcripts"]
 
-    assert len(paths) == len(transcripts)
+    assert len(audio_paths) == len(transcripts)
     print("=> Data Loaded...")
 
-    n_data = len(paths)
+    n_data = len(audio_paths)
     n_train = int(train_fraction * n_data)
     n_val = int(val_fraction * n_data)
     n_test = int(test_fraction * n_data)
     print(f"=> Number of data points in total: {n_data}")
     print(f"=> n_train {n_train}, n_val {n_val}, n_test {n_test}")
 
-    # remove from test if too big
-    if n_train + n_val + n_test > n_data:
-        n_test -= n_train + n_val + n_test - n_data
-
     assert n_train + n_val + n_test <= n_data
+
+    def write_file(path, start_index, end_index):
+        with open(path, "w") as file:
+            for i in range(start_index, end_index):
+                audio_path = (Path("filelists") / audio_dir / audio_paths[i]).as_posix()
+                text = transcripts[i]
+                file.write(audio_path + "|" + text + "\n")
 
     train_idx = n_train
     val_idx = train_idx + n_val
     test_idx = val_idx + n_test
 
-    print("=> Writing Tacotron Train data file...")
-    with open(train_filename, "w") as f:
-        for i in range(0, train_idx):
-            path = paths[i]
-            text = transcripts[i]
-            f.write(path + "|" + text + "\n")
-
-    print("=> Writing Tacotron Validation data file...")
-    with open(val_filename, "w") as f:
-        for i in range(train_idx, val_idx):
-            path = paths[i]
-            text = transcripts[i]
-            f.write(path + "|" + text + "\n")
-
-    print("=> Writing the rest to Tacotron test data file...")
-    with open(test_filename, "w") as f:
-        for i in range(val_idx, test_idx):
-            path = paths[i]
-            text = transcripts[i]
-            f.write(path + "|" + text + "\n")
-
-    print("=> Write complete...")
+    write_file(train_filename, 0, train_idx)
+    write_file(val_filename, train_idx, val_idx)
+    write_file(test_filename, val_idx, test_idx)
 
 
 def prepare_audio():
