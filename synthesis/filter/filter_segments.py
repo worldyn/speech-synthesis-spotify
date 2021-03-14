@@ -62,7 +62,7 @@ def create_segments(data):
             text=transcript,
         )
         for path, times, transcript in tqdm(
-            zip(data["paths"], data["timestamps"], data["transcripts"]),
+            list(zip(data["paths"], data["timestamps"], data["transcripts"])),
             desc="Creating segment objects",
         )
     ]
