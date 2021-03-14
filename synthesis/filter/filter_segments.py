@@ -7,11 +7,6 @@ from tqdm.auto import tqdm
 from .segment import Segment
 
 
-INPUT_FILENAME = "merged/merged.json"
-SHOW_OUTPUT_FILENAME = "filtered_show.json"
-DATA_PATH = "audio/"
-EP_OUTPUT_FILENAME = "filtered_ep.json"
-
 cutoff_pitch = 0.1
 cutoff_energy = 0.1
 cutoff_intensity = 0.1
@@ -22,7 +17,7 @@ max_duration = 10.0
 
 
 def main():
-    with open(INPUT_FILENAME) as file:
+    with open("merged/merged.json") as file:
         data = json.load(file)
 
         paths = data["paths"]
@@ -73,7 +68,7 @@ def main():
 
     obj = {"paths": paths, "timestamps": timestamps, "transcripts": transcripts}
 
-    with open(SHOW_OUTPUT_FILENAME, "w") as file:
+    with open("filtered.json", "w") as file:
         json.dump(obj, file, indent=4)
 
 
@@ -108,7 +103,7 @@ def create_segments(paths, timestamps, transcripts):
             seg_start = ep_timestamps[j][0]
             seg_end = ep_timestamps[j][1]
             transcript = ep_transcripts[j]
-            seg = Segment(DATA_PATH + ep_path, seg_start, seg_end, text=transcript)
+            seg = Segment(f"audio/{ep_path}", seg_start, seg_end, text=transcript)
             ep_segments.append(seg)
         show_segments.append(ep_segments)
 
