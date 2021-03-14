@@ -1,4 +1,5 @@
 from typing import List, Tuple, Dict, Set
+from pathlib import Path
 import numpy as np
 import json
 import ntpath
@@ -20,30 +21,9 @@ def main():
     with open("merged/merged.json") as file:
         data = json.load(file)
 
-        paths = data["paths"]
-        timestamps = data["timestamps"]
-
-        try:
-            transcripts = data["transcripts"]
-        except:
-            transcripts = [""] * len(paths)
-
-    assert len(paths) == len(timestamps)
-
-    print("=> Grouping segments by episode...")
-    paths, timestamps, transcripts = group_segments(
-        paths=paths, timestamps=timestamps, transcripts=transcripts
-    )
-
-    print("=> Creating segment objects...")
-    show_segments = create_segments(
-        paths=paths, timestamps=timestamps, transcripts=transcripts
-    )
-    print("=> Number of segment objects: ", len(show_segments))
-
-    print("=> Filtering by stats...")
-    kept_shows = filter_segments(
-        show_segments=show_segments,
+    segments = create_segments(data)
+    kept_segments = filter_segments(
+        segments=segments,
         duration_range=(min_duration, max_duration),
         cut_fractions=dict(
             pitch=cutoff_pitch,
@@ -52,12 +32,11 @@ def main():
             speech_rate=cutoff_speech_rate,
         ),
     )
-    print(f"=> Will keep {len(kept_shows)} segments")
 
     paths = []
     timestamps = []
     transcripts = []
-    for i, segment in tqdm(enumerate(kept_shows), desc="Storing segments"):
+    for i, segment in tqdm(enumerate(kept_segments), desc="Storing segments"):
         ep_name_wav = ntpath.basename(segment.path)
         ep_name = os.path.splitext(ep_name_wav)[0]
         segment_saved_path = f"{ep_name}_segment_{i}.wav"
@@ -66,76 +45,54 @@ def main():
         timestamps.append((segment.start_time, segment.end_time))
         transcripts.append(segment.text)
 
-    obj = {"paths": paths, "timestamps": timestamps, "transcripts": transcripts}
-
     with open("filtered.json", "w") as file:
-        json.dump(obj, file, indent=4)
+        json.dump(
+            {"paths": paths, "timestamps": timestamps, "transcripts": transcripts},
+            file,
+            indent=4,
+        )
 
 
-def group_segments(paths, timestamps, transcripts):
-    ts = {}
-    tr = {}
-    for i in range(len(paths)):
-        ts[paths[i]] = ts.get(paths[i], []) + [timestamps[i]]
-        tr[paths[i]] = tr.get(paths[i], []) + [transcripts[i]]
-
-    paths = []
-    timestamps = []
-    transcripts = []
-    for k in ts.keys():
-        paths.append(k.split("/")[-1])
-        timestamps.append(ts[k])
-        transcripts.append(tr[k])
-
-    return paths, timestamps, transcripts
-
-
-def create_segments(paths, timestamps, transcripts):
-    show_segments = []
-    for i in range(len(paths)):
-        if i % 100 == 0:
-            print("=> ", i, " / ", len(paths), " segments obj created...")
-        ep_path = paths[i]
-        ep_timestamps = timestamps[i]
-        ep_transcripts = transcripts[i]
-        ep_segments = []
-        for j in range(len(ep_timestamps)):
-            seg_start = ep_timestamps[j][0]
-            seg_end = ep_timestamps[j][1]
-            transcript = ep_transcripts[j]
-            seg = Segment(f"audio/{ep_path}", seg_start, seg_end, text=transcript)
-            ep_segments.append(seg)
-        show_segments.append(ep_segments)
-
-    print("=> All objects created...")
-    return show_segments
+def create_segments(data):
+    return [
+        Segment(
+            path=Path("audio") / path.split("/")[-1],
+            start_time=times[0],
+            end_time=times[1],
+            text=transcript,
+        )
+        for path, times, transcript in tqdm(
+            zip(data["paths"], data["timestamps"], data["transcripts"]),
+            desc="Creating segment objects",
+        )
+    ]
 
 
 def filter_segments(
-    show_segments: List[Segment],
+    segments: List[Segment],
     duration_range: Tuple[float],
     cut_fractions: Dict[str, float],
 ):
     fitting_duration = [
-        [
-            segment
-            for segment in episode_segments
-            if duration_range[0] <= segment.duration <= duration_range[1]
-        ]
-        for episode_segments in show_segments
+        segment
+        for segment in segments
+        if duration_range[0] <= segment.duration <= duration_range[1]
     ]
     filtered_per_episode = set.union(
         *[
-            filter_flat(episode_segments, cut_fractions)
-            for episode_segments in fitting_duration
+            filter_flat(
+                [
+                    segment
+                    for segment in fitting_duration
+                    if segment.path == episode_path
+                ],
+                cut_fractions,
+            )
+            for episode_path in set(segment.path for segment in fitting_duration)
         ]
     )
     filtered_per_show = filter_flat(
-        [
-            segment
-            for episode_segments in fitting_duration
-            for segment in episode_segments
-        ],
+        fitting_duration,
         cut_fractions,
     )
     return set.intersection(filtered_per_episode, filtered_per_show)
@@ -144,9 +101,11 @@ def filter_segments(
 def filter_flat(segments: List[Segment], cut_fractions: Dict[str, float]):
     def filter_by(stat_name: str):
         num_cut = int(cut_fractions[stat_name] * len(segments) / 2)
-        sorted_segments = sorted(
-            segments, key=lambda segment: getattr(segment, stat_name)
-        )
+        stats = {
+            segment: getattr(segment, stat_name)
+            for segment in tqdm(segments, desc=f"Filtering by {stat_name}")
+        }
+        sorted_segments = sorted(segments, key=lambda segment: stats[segment])
         return set(sorted_segments[num_cut : len(sorted_segments) - num_cut])
 
     return set.intersection(
