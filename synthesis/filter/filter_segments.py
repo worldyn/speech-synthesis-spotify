@@ -7,6 +7,76 @@ from tqdm.auto import tqdm
 from .segment import Segment
 
 
+INPUT_FILENAME = "merged/merged.json"
+SHOW_OUTPUT_FILENAME = "filtered_show.json"
+DATA_PATH = "audio/"
+EP_OUTPUT_FILENAME = "filtered_ep.json"
+
+cutoff_pitch = 0.1
+cutoff_energy = 0.1
+cutoff_intensity = 0.1
+cutoff_speech_rate = 0.1
+
+min_duration = 3.0
+max_duration = 10.0
+
+
+def main():
+    with open(INPUT_FILENAME) as file:
+        data = json.load(file)
+
+        paths = data["paths"]
+        timestamps = data["timestamps"]
+
+        try:
+            transcripts = data["transcripts"]
+        except:
+            transcripts = [""] * len(paths)
+
+    assert len(paths) == len(timestamps)
+
+    print("=> Grouping segments by episode...")
+    paths, timestamps, transcripts = group_segments(
+        paths=paths, timestamps=timestamps, transcripts=transcripts
+    )
+
+    print("=> Creating segment objects...")
+    show_segments = create_segments(
+        paths=paths, timestamps=timestamps, transcripts=transcripts
+    )
+    print("=> Number of segment objects: ", len(show_segments))
+
+    print("=> Filtering by stats...")
+    kept_shows = filter_segments(
+        show_segments=show_segments,
+        duration_range=(min_duration, max_duration),
+        cut_fractions=dict(
+            pitch=cutoff_pitch,
+            energy=cutoff_energy,
+            intensity=cutoff_intensity,
+            speech_rate=cutoff_speech_rate,
+        ),
+    )
+    print(f"=> Will keep {len(kept_shows)} segments")
+
+    paths = []
+    timestamps = []
+    transcripts = []
+    for i, segment in tqdm(enumerate(kept_shows), desc="Storing segments"):
+        ep_name_wav = ntpath.basename(segment.path)
+        ep_name = os.path.splitext(ep_name_wav)[0]
+        segment_saved_path = f"{ep_name}_segment_{i}.wav"
+        segment.write(segment_saved_path)
+        paths.append(segment_saved_path)
+        timestamps.append((segment.start_time, segment.end_time))
+        transcripts.append(segment.text)
+
+    obj = {"paths": paths, "timestamps": timestamps, "transcripts": transcripts}
+
+    with open(SHOW_OUTPUT_FILENAME, "w") as file:
+        json.dump(obj, file, indent=4)
+
+
 def group_segments(paths, timestamps, transcripts):
     ts = {}
     tr = {}
@@ -87,77 +157,6 @@ def filter_flat(segments: List[Segment], cut_fractions: Dict[str, float]):
     return set.intersection(
         *[filter_by(stat_name) for stat_name in cut_fractions.keys()]
     )
-
-
-# Constants
-INPUT_FILENAME = "merged/merged.json"
-SHOW_OUTPUT_FILENAME = "filtered_show.json"
-DATA_PATH = "audio/"
-EP_OUTPUT_FILENAME = "filtered_ep.json"
-
-cutoff_pitch = 0.1
-cutoff_energy = 0.1
-cutoff_intensity = 0.1
-cutoff_speech_rate = 0.1
-
-min_duration = 3.0
-max_duration = 10.0
-
-
-def main():
-    with open(INPUT_FILENAME) as file:
-        data = json.load(file)
-
-        paths = data["paths"]
-        timestamps = data["timestamps"]
-
-        try:
-            transcripts = data["transcripts"]
-        except:
-            transcripts = [""] * len(paths)
-
-    assert len(paths) == len(timestamps)
-
-    print("=> Grouping segments by episode...")
-    paths, timestamps, transcripts = group_segments(
-        paths=paths, timestamps=timestamps, transcripts=transcripts
-    )
-
-    print("=> Creating segment objects...")
-    show_segments = create_segments(
-        paths=paths, timestamps=timestamps, transcripts=transcripts
-    )
-    print("=> Number of segment objects: ", len(show_segments))
-
-    print("=> Filtering by stats...")
-    kept_shows = filter_segments(
-        show_segments=show_segments,
-        duration_range=(min_duration, max_duration),
-        cut_fractions=dict(
-            pitch=cutoff_pitch,
-            energy=cutoff_energy,
-            intensity=cutoff_intensity,
-            speech_rate=cutoff_speech_rate,
-        ),
-    )
-    print(f"=> Will keep {len(kept_shows)} segments")
-
-    paths = []
-    timestamps = []
-    transcripts = []
-    for i, segment in tqdm(enumerate(kept_shows), desc="Storing segments"):
-        ep_name_wav = ntpath.basename(segment.path)
-        ep_name = os.path.splitext(ep_name_wav)[0]
-        segment_saved_path = f"{ep_name}_segment_{i}.wav"
-        segment.write(segment_saved_path)
-        paths.append(segment_saved_path)
-        timestamps.append((segment.start_time, segment.end_time))
-        transcripts.append(segment.text)
-
-    obj = {"paths": paths, "timestamps": timestamps, "transcripts": transcripts}
-
-    with open(SHOW_OUTPUT_FILENAME, "w") as file:
-        json.dump(obj, file, indent=4)
 
 
 if __name__ == "__main__":
