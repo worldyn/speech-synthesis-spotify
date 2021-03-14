@@ -1,5 +1,0 @@
-on show level (from spotify paper)
-- how deviates from mean pitch
-- speech rate 
-- music, not sure if easyto detect, but cut out intro/outro is possible
-- 
