@@ -22,6 +22,7 @@ g2p-en = "^2.1.0"
 matplotlib = "^3.3.4"
 praat-parselmouth = "^0.4.0"
 manydo = "^0.1.4"
+cached-property = "^1.5.2"
 
 
 [tool.poetry.dev-dependencies]

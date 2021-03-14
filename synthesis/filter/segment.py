@@ -1,8 +1,8 @@
-from functools import cached_property
 import numpy as np
 from scipy.io import wavfile
 import parselmouth
 from g2p_en import G2p
+from cached_property import cached_property
 
 
 class Segment:
