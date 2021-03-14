@@ -1,10 +1,6 @@
 from pathlib import Path
 import os
-import scipy.io.wavfile
-import numpy as np
 import json
-import sys
-import pickle
 
 
 show_dir = "0/L/show_0L0j6X6cf3DO1Bs0D0K4Ch"
