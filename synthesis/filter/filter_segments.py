@@ -63,7 +63,6 @@ def create_segments(paths, timestamps, transcripts):
         ep_transcripts = transcripts[i]
         ep_segments = []
         for j in range(len(ep_timestamps)):
-            # print(ep_timestamps, ep_transcripts)
             seg_start = ep_timestamps[j][0]
             seg_end = ep_timestamps[j][1]
             transcript = ep_transcripts[j]
@@ -285,12 +284,6 @@ def inside_intervals(
         if length > LENGTH_TOP_BOUND or length < LENGTH_BOTTOM_BOUND:
             return False
 
-        # lower_bound = stats['avg_length'] - stats['std_length']*intervals['intensity_length']/2
-        # upper_bound = stats['avg_length'] + stats['std_length']*intervals['intensity_length']/2
-
-        # if intensity < lower_bound or intensity > upper_bound:
-        #    return False
-
     return True
 
 
@@ -299,8 +292,7 @@ INPUT_FILENAME = "merged/merged.json"
 SHOW_OUTPUT_FILENAME = "filtered_show.json"
 DATA_PATH = "audio/"
 EP_OUTPUT_FILENAME = "filtered_ep.json"
-# SEGMENTS_KEPT_OUTDIR = 'filtered/'
-# SEGMENTS_REMOVE_OUTDIR = 'segments_removed/'
+
 FILTER_PITCH = 1
 FILTER_SR = 1
 FILTER_ENERGY = 1
@@ -316,23 +308,6 @@ LENGTH_TOP_BOUND = 10.0
 
 
 def main():
-
-    # check that correct dirs exist
-    """
-    if not os.path.isdir(SEGMENTS_KEPT_OUTDIR):
-        print("Directory ", SEGMENTS_KEPT_OUTDIR, " doesn't exist...")
-    if not os.path.isdir(DATA_PATH):
-        print(DATA_PATH, " directory doesn't exist...")
-    """
-
-    """
-    # Loading the intervals from INTERVAL_FILE
-    with open(INTERVAL_FILE) as file:
-        intervals = json.load(file)
-
-    print(intervals)
-    """
-
     # Loading the data
 
     with open(INPUT_FILENAME) as file:
@@ -346,10 +321,6 @@ def main():
         except:
             transcripts = [""] * len(paths)
 
-    # print(paths)
-    # print(timestamps)
-    # print(transcripts)
-
     assert len(paths) == len(timestamps)
 
     print("=> Grouping segments by episode ...")
@@ -357,9 +328,6 @@ def main():
     paths, timestamps, transcripts = group_segments(
         paths=paths, timestamps=timestamps, transcripts=transcripts
     )
-    # print(paths)
-    # print(timestamps)
-    # print(transcripts)
 
     # Creating a list of Segment objects
     print("=> Creating segment objects ...")
@@ -372,8 +340,6 @@ def main():
     # Computing episodes and show stats
     print("=> Computing statistics ...")
     show_stats, ep_stats = compute_stats(show_segments=show_segments)
-    # print('Show stats:', show_stats)
-    # print('Episode stats:', show_stats)
 
     # Filtering the episodes
 
