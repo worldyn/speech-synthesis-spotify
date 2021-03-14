@@ -38,7 +38,7 @@ class Segment:
         g2p = G2p()
         phonemes = g2p(self.text)
         phonemes = [s for s in phonemes if s.strip()]
-        return len(phonemes) / self.time
+        return len(phonemes) / self.duration
 
     def __eq__(self, other):
         return hash(self) == hash(other)
