@@ -36,25 +36,6 @@ List of `Segments` representing valid segments
 '''
 
 
-
-def arg_parse(args):
-    '''
-    input: list of arguments
-    output: dictionary with the parameters
-    '''
-
-    usage = 'python audio_filtering.py [input_file]'
-
-    if len(args) < 2 or '-h' in args or '--help' in args:
-        print('Usage:', usage)
-        exit()
-
-    params = {
-        'input_filename': args[1]
-    }
-
-    return params
-
 def group_segments(paths, timestamps, transcripts):
     ts = {}
     tr = {}
@@ -356,10 +337,6 @@ def main():
     '''
 
     # Loading the data
-
-    #params = arg_parse(sys.argv)
-
-    #input_filename = params['input_filename']
 
     with open(INPUT_FILENAME) as file:
         data = json.load(file)
