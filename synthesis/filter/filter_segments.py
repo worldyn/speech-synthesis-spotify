@@ -54,6 +54,15 @@ def main():
 
 
 def create_segments(data):
+    data_transposed = sorted(
+        [
+            (path, times, transcript)
+            for path, times, transcript in zip(
+                data["paths"], data["timestamps"], data["transcripts"]
+            )
+        ],
+        key=lambda info: info[0],
+    )  # sort by path to help caching
     return [
         Segment(
             path=(Path("audio") / path.split("/")[-1]).as_posix(),
@@ -62,7 +71,7 @@ def create_segments(data):
             text=transcript,
         )
         for path, times, transcript in tqdm(
-            list(zip(data["paths"], data["timestamps"], data["transcripts"])),
+            data_transposed,
             desc="Creating segment objects",
         )
     ]

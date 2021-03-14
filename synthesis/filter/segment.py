@@ -1,29 +1,32 @@
+from functools import lru_cache
+from cached_property import cached_property
 import numpy as np
 from scipy.io import wavfile
 import parselmouth
 from g2p_en import G2p
-from cached_property import cached_property
 
 
 class Segment:
     def __init__(self, path, start_time, end_time, samp_freq=44100, text=""):
-        self.path = path  # episode path
+        self.path = path
         self.start_time = start_time
         self.end_time = end_time
         self.duration = end_time - start_time
-        snd = parselmouth.Sound(path)
-        self.snd = snd.extract_part(from_time=start_time, to_time=end_time)
-        self.data = self.snd.values.T  # amplitudes
+
+        sound = read_sound_file(path).extract_part(
+            from_time=start_time, to_time=end_time
+        )
+        self.amplitudes = sound.values.T
 
         self.samp_freq = samp_freq
-        self.intensities = self.snd.to_intensity()
-        self.pitches = self.snd.to_pitch().selected_array["frequency"]
-        self.energy = self.snd.get_energy()
+        self.intensities = sound.to_intensity()
+        self.pitches = sound.to_pitch().selected_array["frequency"]
+        self.energy = sound.get_energy()
 
         self.text = text
 
     def write(self, path):
-        wavfile.write(path, self.samp_freq, self.data)
+        wavfile.write(path, self.samp_freq, self.amplitudes)
 
     @cached_property
     def pitch(self):
@@ -45,3 +48,8 @@ class Segment:
 
     def __hash__(self):
         return hash((self.path, self.start_time, self.end_time, self.text))
+
+
+@lru_cache(maxsize=1)
+def read_sound_file(path):
+    return parselmouth.Sound(path)
