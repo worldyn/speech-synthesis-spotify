@@ -35,14 +35,14 @@
       requires:
         - audio-wav
     convert-audio:
-      main: synthesis.datadownload.convert
+      main: synthesis.data.convert
       requires:
         - audio-ogg
     download-audio:
-      main: synthesis.datadownload.download.audio
+      main: synthesis.data.download.audio
       flags-import: all
     download-transcripts:
-      main: synthesis.datadownload.download.transcripts
+      main: synthesis.data.download.transcripts
       flags-import: all
   resources:
     filtered:
