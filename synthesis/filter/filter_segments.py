@@ -56,7 +56,7 @@ def main():
 def create_segments(data):
     return [
         Segment(
-            path=Path("audio") / path.split("/")[-1],
+            path=(Path("audio") / path.split("/")[-1]).as_posix(),
             start_time=times[0],
             end_time=times[1],
             text=transcript,
