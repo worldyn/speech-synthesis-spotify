@@ -97,7 +97,9 @@ def filter_segments(
                 ],
                 cut_fractions,
             )
-            for episode_path in set(segment.path for segment in fitting_duration)
+            for episode_path in tqdm(
+                set(segment.path for segment in fitting_duration), desc="Filtering"
+            )
         ]
     )
     filtered_per_show = filter_flat(
@@ -110,10 +112,7 @@ def filter_segments(
 def filter_flat(segments: List[Segment], cut_fractions: Dict[str, float]):
     def filter_by(stat_name: str):
         num_cut = int(cut_fractions[stat_name] * len(segments) / 2)
-        stats = {
-            segment: getattr(segment, stat_name)
-            for segment in tqdm(segments, desc=f"Filtering by {stat_name}")
-        }
+        stats = {segment: getattr(segment, stat_name) for segment in segments}
         sorted_segments = sorted(segments, key=lambda segment: stats[segment])
         return set(sorted_segments[num_cut : len(sorted_segments) - num_cut])
 
