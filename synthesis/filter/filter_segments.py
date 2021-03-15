@@ -36,7 +36,7 @@ def main():
     paths = []
     timestamps = []
     transcripts = []
-    for i, segment in tqdm(enumerate(kept_segments), desc="Storing segments"):
+    for i, segment in enumerate(tqdm(kept_segments, desc="Storing segments")):
         ep_name_wav = ntpath.basename(segment.path)
         ep_name = os.path.splitext(ep_name_wav)[0]
         segment_saved_path = f"{ep_name}_segment_{i}.wav"
@@ -97,10 +97,7 @@ def filter_segments(
                 ],
                 cut_fractions,
             )
-            for episode_path in tqdm(
-                set(segment.path for segment in fitting_duration),
-                desc="Filtering on episode level",
-            )
+            for episode_path in set(segment.path for segment in fitting_duration)
         ]
     )
     filtered_per_show = filter_flat(
