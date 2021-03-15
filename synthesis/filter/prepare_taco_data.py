@@ -4,8 +4,6 @@ import numpy as np
 import soundfile
 from tqdm.auto import tqdm
 
-# Constants
-input_filename = "filtered_show.json"
 train_filename = "ljs_audio_text_train_filelist.txt"
 val_filename = "ljs_audio_text_val_filelist.txt"
 test_filename = "ljs_audio_text_test_filelist.txt"
@@ -19,15 +17,12 @@ test_fraction = 0.01
 
 
 def prepare_annotations():
-    # Loading the intervals from INTERVAL_FILE
     assert train_fraction + val_fraction + test_fraction <= 1.0
     print("=> Loading annotations...")
-    with open(Path("filtered") / input_filename) as file:
+    with open("filtered/filtered.json") as file:
         segments = json.load(file)
 
-    # Loading the data
     audio_paths = segments["paths"]
-    # timestamps = segments["timestamps"]
     transcripts = segments["transcripts"]
 
     assert len(audio_paths) == len(transcripts)
