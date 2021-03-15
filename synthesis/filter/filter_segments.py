@@ -112,8 +112,9 @@ def filter_segments(
 def filter_flat(segments: List[Segment], cut_fractions: Dict[str, float]):
     def filter_by(stat_name: str):
         num_cut = int(cut_fractions[stat_name] * len(segments) / 2)
-        stats = {segment: getattr(segment, stat_name) for segment in segments}
-        sorted_segments = sorted(segments, key=lambda segment: stats[segment])
+        sorted_segments = sorted(
+            segments, key=lambda segment: getattr(segment, stat_name)
+        )
         return set(sorted_segments[num_cut : len(sorted_segments) - num_cut])
 
     return set.intersection(
