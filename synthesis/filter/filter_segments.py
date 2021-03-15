@@ -98,7 +98,8 @@ def filter_segments(
                 cut_fractions,
             )
             for episode_path in tqdm(
-                set(segment.path for segment in fitting_duration), desc="Filtering"
+                set(segment.path for segment in fitting_duration),
+                desc="Filtering on episode level",
             )
         ]
     )
