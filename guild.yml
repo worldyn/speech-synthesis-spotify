@@ -4,18 +4,18 @@
     - "*.h5"
   operations:
     prepare-taco-data:
-      main: synthesis.filtering.prepare_taco_data
+      main: synthesis.filter.prepare_taco_data
       flags-import: all
       requires:
         - filtered
     filter-segments:
-      main: synthesis.filtering.audio_filtering
+      main: synthesis.filter.filter_segments
       flags-import: all
       requires:
         - merged
         - audio-wav
     merge-text:
-      main: synthesis.filtering.transcripts_merging
+      main: synthesis.filter.merge_text
       flags-import: all
       requires:
         - breath
@@ -35,14 +35,14 @@
       requires:
         - audio-wav
     convert-audio:
-      main: synthesis.datadownload.convert
+      main: synthesis.data.convert
       requires:
         - audio-ogg
     download-audio:
-      main: synthesis.datadownload.download.audio
+      main: synthesis.data.download.audio
       flags-import: all
     download-transcripts:
-      main: synthesis.datadownload.download.transcripts
+      main: synthesis.data.download.transcripts
       flags-import: all
   resources:
     filtered:

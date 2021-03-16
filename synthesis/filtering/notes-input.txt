@@ -1,3 +1,0 @@
-input_segments.json > transcripts_merging.py 
-> merged.json > audio_filtering.py > filtered_ep.json and filtered_show.json
-> make_tacotron_data.py

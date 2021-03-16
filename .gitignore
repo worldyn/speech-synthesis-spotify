@@ -1,18 +1,7 @@
-# vim stuff
+# Editor-specific
 *.swp
+.vscode/
 
-data
-
-outdir
-logdir
-logs
-filelists
-tacotron2_statedict.pt
-ljs_audio_text*
-
-# dont save audio data to git
-*.ogg
-*.wav
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -142,12 +131,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-.vscode/
-
-
-# Data folder
-
-data/
-# Data
-/data

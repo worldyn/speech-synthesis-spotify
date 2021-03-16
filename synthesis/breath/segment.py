@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 
+min_subsegment_seconds = 0.1
 target_segment_seconds = 10
 max_empty_seconds = 1
 
@@ -30,6 +31,8 @@ def process_episode(annotation_path: Path):
 
     joined_segments = []
     for segment in segments_seconds:
+        if segment[1] - segment[0] < min_subsegment_seconds:
+            continue
         if len(joined_segments) == 0:
             joined_segments.append(segment)
             continue
