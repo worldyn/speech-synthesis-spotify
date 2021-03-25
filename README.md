@@ -3,9 +3,6 @@
 Speech synthesis using Spotify's podcast dataset
 https://podcastsdataset.byspotify.com/
 
-See the synthesized results here:
-https://www.notion.so/malyvsen/4967e4e8627b48f998b9524933764a21?v=645207dbb991489da6e881f06a7af622 
-
 ## Setup
 
 After cloning the repo, create a virtual environment with [Poetry](https://python-poetry.org/):
